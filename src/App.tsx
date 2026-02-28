@@ -41,68 +41,69 @@ const App: React.FC = () => {
   }, []);
 
   const playPlateAppearance = () => {
-    setGameState(prev => {
-        if (!prev || prev.inning > 3) return prev;
-        const batter = prev.lineup.batters[prev.currentBatterIndex];
-        if (!batter) return prev;
+    if (!gameState || gameState.inning > 3) return;
+    
+    const batter = gameState.lineup.batters[gameState.currentBatterIndex];
+    if (!batter) return;
 
-        const result = Engine.simulatePlateAppearance(batter);
-        const nextState = Engine.processResult(prev, result);
+    const result = Engine.simulatePlateAppearance(batter);
+    const nextState = Engine.processResult(gameState, result);
 
-        setLog(logs => [`${batter.name}: ${result}`, ...logs]);
-        
-        // Check if inning just ended (Engine handles the increment)
-        if (nextState.inning > prev.inning) {
-            setLog(logs => [`--- End Inning ${prev.inning} ---`, ...logs]);
-            if (nextState.inning > 3) {
-                setLog(logs => [`--- GAME OVER. Final Score: ${nextState.score} ---`, ...logs]);
-            }
+    const newLogs = [`${batter.name}: ${result}`];
+    
+    if (nextState.inning > gameState.inning) {
+        newLogs.unshift(`--- End Inning ${gameState.inning} ---`);
+        if (nextState.inning > 3) {
+            newLogs.unshift(`--- GAME OVER. Final Score: ${nextState.score} ---`);
         }
+    }
 
-        return nextState;
-    });
+    setLog(prev => [...newLogs, ...prev]);
+    setGameState(nextState);
   };
 
   const simulateInning = () => {
     if (!gameState || gameState.inning > 3) return;
     const startInning = gameState.inning;
     let currentState = { ...gameState };
+    const newLogs: string[] = [];
     
     while (currentState.inning === startInning) {
         const batter = currentState.lineup.batters[currentState.currentBatterIndex];
         if (!batter) break;
         const result = Engine.simulatePlateAppearance(batter);
         currentState = Engine.processResult(currentState, result);
-        const entry = `${batter.name}: ${result}`;
-        setLog(prev => [entry, ...prev]);
+        newLogs.unshift(`${batter.name}: ${result}`);
     }
     
-    setLog(prev => [`--- End Inning ${startInning} ---`, ...prev]);
+    newLogs.unshift(`--- End Inning ${startInning} ---`);
     if (currentState.inning > 3) {
-        setLog(prev => [`--- GAME OVER. Final Score: ${currentState.score} ---`, ...prev]);
+        newLogs.unshift(`--- GAME OVER. Final Score: ${currentState.score} ---`);
     }
+    
+    setLog(prev => [...newLogs, ...prev]);
     setGameState(currentState);
   };
 
-  if (!gameState) return <div className="p-8 text-white">Loading...</div>;
+  if (!gameState) return <div className="p-8 text-white font-mono">Loading simulation...</div>;
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white p-4 font-sans selection:bg-red-500/30">
       {/* Top Bar / Scorebug */}
       <div className="max-w-6xl mx-auto flex justify-between items-center bg-[#1e293b] p-4 rounded-2xl border border-white/10 shadow-2xl mb-8">
         <div className="flex items-center gap-6">
-            <div className="flex flex-col">
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter text-center">Score</span>
+            <div className="flex flex-col items-center">
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Score</span>
                 <span className="text-3xl font-black text-red-500 leading-none">{gameState.score}</span>
             </div>
             <div className="h-8 w-px bg-white/10" />
-            <div className="flex flex-col">
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter text-center">Inning</span>
-                <span className="text-xl font-bold leading-none text-center">▲{Math.min(gameState.inning, 3)}</span>
+            <div className="flex flex-col items-center">
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Inning</span>
+                <span className="text-xl font-bold leading-none">▲{Math.min(gameState.inning, 3)}</span>
             </div>
             <div className="h-8 w-px bg-white/10" />
-            <div className="flex flex-col">
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter text-center">Outs</span>
+            <div className="flex flex-col items-center">
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Outs</span>
                 <div className="flex gap-1.5 mt-1">
                     {[...Array(3)].map((_, i) => (
                         <div key={i} className={`w-3 h-3 rounded-full border border-white/20 ${i < gameState.outs ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'bg-slate-900'}`} />
@@ -125,7 +126,7 @@ const App: React.FC = () => {
 
       <div className="max-w-6xl mx-auto grid grid-cols-12 gap-8">
         {/* Play Area */}
-        <div className="col-span-12 lg:col-span-8 space-y-8">
+        <div className="col-span-12 lg:col-span-8 space-y-8 text-center">
             {/* Lineup Cards */}
             <div className="flex justify-center items-center gap-3 h-72 overflow-x-auto px-4 py-4 scrollbar-hide">
                 {gameState.lineup.batters.map((p, i) => {
@@ -140,14 +141,14 @@ const App: React.FC = () => {
                                 ${isUp ? 'border-red-500 ring-4 ring-red-500/30 scale-110 -translate-y-2 z-10' : 'border-white/10 opacity-60'}
                             `}
                         >
-                            <div className="text-[10px] font-black opacity-30 absolute top-2 left-2 italic">ORDER #{i+1}</div>
+                            <div className="text-[10px] font-black opacity-30 absolute top-2 left-2 italic">#{i+1}</div>
                             <div className={`w-full aspect-square bg-slate-800/50 rounded-lg mb-2 overflow-hidden flex items-center justify-center p-2`}>
                                 <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i + 1}.png`} className="w-full h-full object-contain pixelated" alt={p.name} />
                             </div>
                             <div className="text-center w-full">
                                 <div className={`font-black truncate text-[10px] uppercase tracking-tighter ${isUp ? 'text-red-400' : 'text-slate-300'}`}>{p.name}</div>
                                 {isUp && (
-                                    <div className="grid grid-cols-2 gap-1 mt-1">
+                                    <div className="grid grid-cols-2 gap-1 mt-1 font-mono">
                                         <div className="bg-black/40 rounded py-0.5">
                                             <div className="text-[6px] text-slate-500 uppercase leading-none font-bold">CON</div>
                                             <div className="text-[10px] font-black">{p.stats.contact}</div>
@@ -202,7 +203,7 @@ const App: React.FC = () => {
                     <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" /> Play-by-Play
                 </h3>
             </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-slate-700">
+            <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-slate-700 font-mono">
                 {log.map((entry, i) => (
                     <div 
                         key={i} 
