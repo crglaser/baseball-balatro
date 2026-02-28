@@ -6,17 +6,20 @@ import { ShoppingCart, LayoutPanelLeft, Play, RotateCcw, FastForward, Trophy, Sk
 
 const GAME_LENGTH = 9;
 
-// Real 2026 Projected Mets Lineup & Stats (Soto, Lindor, Bichette, Alonso, Vientos, Semien, Nimmo, Alvarez, Gilbert)
+/**
+ * 2026 Projected Mets Lineup
+ * Source: Refined based on 2026 projections
+ */
 const METS_2026_LINEUP: Player[] = [
-    { id: '665742', name: 'Juan Soto (LF)', stats: { contact: 92, power: 98, patience: 99, speed: 60 }, abilities: [ABILITIES.BIG_BATS], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/665742/headshot/67/current' },
+    { id: '665742', name: 'Juan Soto (RF)', stats: { contact: 92, power: 98, patience: 99, speed: 60 }, abilities: [ABILITIES.BIG_BATS], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/665742/headshot/67/current' },
     { id: '596019', name: 'Francisco Lindor (SS)', stats: { contact: 86, power: 75, patience: 82, speed: 85 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/596019/headshot/67/current' },
-    { id: '643667', name: 'Bo Bichette (DH)', stats: { contact: 90, power: 70, patience: 65, speed: 75 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/643667/headshot/67/current' },
-    { id: '624413', name: 'Pete Alonso (1B)', stats: { contact: 68, power: 99, patience: 78, speed: 35 }, abilities: [ABILITIES.BIG_BATS], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/624413/headshot/67/current' },
-    { id: '668901', name: 'Mark Vientos (3B)', stats: { contact: 75, power: 90, patience: 70, speed: 45 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/668901/headshot/67/current' },
+    { id: '643667', name: 'Bo Bichette (SS/DH)', stats: { contact: 90, power: 70, patience: 65, speed: 75 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/643667/headshot/67/current' },
+    { id: '668901', name: 'Mark Vientos (1B/3B)', stats: { contact: 75, power: 92, patience: 72, speed: 45 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/668901/headshot/67/current' },
     { id: '543760', name: 'Marcus Semien (2B)', stats: { contact: 80, power: 75, patience: 80, speed: 70 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/543760/headshot/67/current' },
-    { id: '607043', name: 'Brandon Nimmo (RF)', stats: { contact: 84, power: 65, patience: 98, speed: 70 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/607043/headshot/67/current' },
     { id: '682626', name: 'Francisco Alvarez (C)', stats: { contact: 68, power: 94, patience: 75, speed: 40 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/682626/headshot/67/current' },
-    { id: '694836', name: 'Drew Gilbert (CF)', stats: { contact: 78, power: 72, patience: 82, speed: 88 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/694836/headshot/67/current' },
+    { id: '669134', name: 'Luis Campusano (C/DH)', stats: { contact: 78, power: 65, patience: 70, speed: 30 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/669134/headshot/67/current' },
+    { id: '682668', name: 'Luisangel Acuña (CF)', stats: { contact: 82, power: 55, patience: 72, speed: 95 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/682668/headshot/67/current' },
+    { id: '701424', name: 'Jett Williams (LF/CF)', stats: { contact: 84, power: 50, patience: 94, speed: 92 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/701424/headshot/67/current' },
 ];
 
 const App: React.FC = () => {
@@ -35,7 +38,7 @@ const App: React.FC = () => {
       runners: [null, null, null],
       currentBatterIndex: 0,
     });
-    setLog([{msg: '🏟️ Opening Day 2026 at Citi Field!', type: 'META'}]);
+    setLog([{msg: '🏟️ Welcome to Citi Field! Opening Day 2026 is here.', type: 'META'}]);
     setOverlay(null);
   };
 
@@ -82,7 +85,7 @@ const App: React.FC = () => {
     const newLogs: {msg: string, type: any}[] = [{msg, type: getLogType(result)}];
     
     if (nextState.outs >= 3) {
-        newLogs.unshift({msg: `🏁 End Inning ${gameState.inning}. Mets: ${nextState.score}`, type: 'META'});
+        newLogs.unshift({msg: `🏁 End Inning ${gameState.inning}. Score: ${nextState.score}`, type: 'META'});
         if (gameState.inning >= GAME_LENGTH) {
             setOverlay('GAME_OVER');
         } else {
@@ -220,7 +223,7 @@ const App: React.FC = () => {
                         {isUp && <div className="absolute inset-0 border-4 border-blue-400/20 pointer-events-none animate-pulse rounded-2xl" />}
                         <div className={`text-[9px] font-black absolute top-2 left-3 z-20 ${isUp ? 'text-blue-400' : 'text-zinc-600'}`}>#{i+1}</div>
                         <div className={`w-full aspect-square bg-black/20 rounded-xl overflow-hidden flex items-center justify-center p-1 relative transition-transform duration-700 ${isUp ? 'scale-110' : ''}`}>
-                            <img src={p.imageUrl} className={`w-full h-full object-cover transition-transform duration-500 ${isUp ? 'scale-110' : ''}`} alt={p.name} />
+                            <img src={p.imageUrl} className={`w-full h-full object-cover transition-transform duration-500 ${isUp ? 'scale-110' : ''}`} alt={p.name} onError={(e) => { (e.target as any).src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i + 25}.png` }} />
                         </div>
                         <div className="text-center w-full min-w-0 z-20">
                             <div className={`font-black truncate text-[9px] uppercase tracking-tighter ${isUp ? 'text-white' : 'text-zinc-500'}`}>{p.name.split(' (')[0]}</div>
@@ -302,7 +305,7 @@ const App: React.FC = () => {
                         <div className="w-2.5 h-2.5 bg-red-600 rounded-full animate-pulse shadow-[0_0_12px_rgba(220,38,38,0.8)]" /> Live Coverage
                     </h3>
                 </div>
-                <div className="flex-1 overflow-y-auto p-6 space-y-4 font-mono">
+                <div className="flex-1 overflow-y-auto p-6 space-y-4 font-mono scroll-smooth">
                     {log.map((entry, i) => (
                         <div 
                             key={i} 
@@ -327,8 +330,9 @@ const App: React.FC = () => {
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-2xl animate-in fade-in duration-700 p-8">
               <div className="text-center max-w-lg space-y-10 animate-in zoom-in-95 duration-700">
                   <div className="flex justify-center">
-                      <div className="p-10 bg-blue-500/10 rounded-full border-4 border-blue-500/30 shadow-[0_0_100px_rgba(37,99,235,0.2)]">
+                      <div className="p-10 bg-blue-500/10 rounded-full border-4 border-blue-500/30 shadow-[0_0_100px_rgba(37,99,235,0.2)] relative">
                           <Trophy size={120} className="text-blue-500" />
+                          <div className="absolute inset-0 animate-ping rounded-full border border-blue-500/20" />
                       </div>
                   </div>
                   <div className="space-y-4">
