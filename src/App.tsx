@@ -46,9 +46,7 @@ const App: React.FC = () => {
     initializeGame();
   }, []);
 
-  useEffect(() => {
-    logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [log]);
+  // Removed smooth scroll to end since we are flipping the log
 
   const getLogType = (res: Result): 'HIT' | 'OUT' | 'WALK' => {
       if (res === 'WALK') return 'WALK';
@@ -60,23 +58,19 @@ const App: React.FC = () => {
     let msg = "";
     const runsScored = nextState.score - prevState.score;
     
-    // Outcome description
     if (result === 'HOME_RUN') msg = `🚀 ${batter.name} CRUSHES A HOME RUN!`;
     else if (result === 'WALK') msg = `🚶 ${batter.name} draws a walk.`;
     else if (result === 'STRIKEOUT') msg = `🚫 ${batter.name} strikes out looking.`;
-    else if (result === 'OUT') msg = `⚾ ${batter.name} flies out to center.`;
+    else if (result === 'OUT') msg = `⚾ ${batter.name} made an out.`;
     else msg = `🔥 ${batter.name} rips a ${result.toLowerCase()}.`;
 
-    // Scoring info
     if (runsScored > 0) {
         msg += ` ${runsScored} run${runsScored > 1 ? 's' : ''} score${runsScored === 1 ? 's' : ''}!`;
     }
 
-    // Base state info
     const runnersOn = nextState.runners.filter(r => r !== null).length;
     if (nextState.outs < 3) {
         if (runnersOn === 3) msg += " The bases are loaded!";
-        else if (runnersOn === 0 && runsScored === 0) msg += " The bases are empty.";
     }
 
     return msg;
@@ -95,7 +89,7 @@ const App: React.FC = () => {
     const newLogs: {msg: string, type: any}[] = [{msg, type: getLogType(result)}];
     
     if (nextState.outs >= 3) {
-        newLogs.push({msg: `🏁 End Inning ${gameState.inning}. Score: ${nextState.score}`, type: 'META'});
+        newLogs.unshift({msg: `🏁 End Inning ${gameState.inning}. Score: ${nextState.score}`, type: 'META'});
         if (gameState.inning >= GAME_LENGTH) {
             setOverlay('GAME_OVER');
         } else {
@@ -105,7 +99,7 @@ const App: React.FC = () => {
         }
     }
 
-    setLog(prev => [...prev, ...newLogs]);
+    setLog(prev => [...newLogs, ...prev]);
     setGameState(nextState);
   };
 
@@ -123,10 +117,10 @@ const App: React.FC = () => {
         const result = Engine.simulatePlateAppearance(batter);
         currentState = Engine.processResult(currentState, result);
         const msg = generateNarrative(batter, result, prevState, currentState);
-        newLogs.push({msg, type: getLogType(result)});
+        newLogs.unshift({msg, type: getLogType(result)});
     }
     
-    newLogs.push({msg: `🏁 End Inning ${startInning} --- Score: ${currentState.score}`, type: 'META'});
+    newLogs.unshift({msg: `🏁 End Inning ${startInning} --- Score: ${currentState.score}`, type: 'META'});
     
     if (startInning >= GAME_LENGTH) {
         setOverlay('GAME_OVER');
@@ -136,7 +130,7 @@ const App: React.FC = () => {
         currentState.runners = [null, null, null];
     }
     
-    setLog(prev => [...prev, ...newLogs]);
+    setLog(prev => [...newLogs, ...prev]);
     setGameState(currentState);
   };
 
@@ -144,19 +138,21 @@ const App: React.FC = () => {
     if (!gameState || overlay || gameState.inning > GAME_LENGTH) return;
     
     let currentState = JSON.parse(JSON.stringify(gameState));
-    const newLogs: {msg: string, type: any}[] = [];
+    const totalNewLogs: {msg: string, type: any}[] = [];
     
     while (currentState.inning <= GAME_LENGTH) {
         const startInning = currentState.inning;
+        const inningLogs: {msg: string, type: any}[] = [];
         while (currentState.outs < 3) {
             const batter = currentState.lineup.batters[currentState.currentBatterIndex];
             if (!batter) break;
             const prevState = JSON.parse(JSON.stringify(currentState));
             const result = Engine.simulatePlateAppearance(batter);
             currentState = Engine.processResult(currentState, result);
-            newLogs.push({msg: generateNarrative(batter, result, prevState, currentState), type: getLogType(result)});
+            inningLogs.unshift({msg: generateNarrative(batter, result, prevState, currentState), type: getLogType(result)});
         }
-        newLogs.push({msg: `🏁 End Inning ${startInning} --- Score: ${currentState.score}`, type: 'META'});
+        inningLogs.unshift({msg: `🏁 End Inning ${startInning} --- Score: ${currentState.score}`, type: 'META'});
+        totalNewLogs.unshift(...inningLogs);
         
         if (currentState.inning < GAME_LENGTH) {
             currentState.inning += 1;
@@ -168,7 +164,7 @@ const App: React.FC = () => {
     }
     
     setOverlay('GAME_OVER');
-    setLog(prev => [...prev, ...newLogs]);
+    setLog(prev => [...totalNewLogs, ...prev]);
     setGameState(currentState);
   };
 
@@ -177,7 +173,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#050505] text-slate-100 font-sans selection:bg-blue-500/30 flex flex-col items-center">
       
-      {/* SNY Style Scorebug - Simplified (No Diamond) */}
+      {/* SNY Style Scorebug */}
       <div className="mt-6 flex bg-[#0a0a0a] border-b-4 border-[#00aff0] rounded-b-lg shadow-[0_15px_40px_rgba(0,0,0,0.6)] overflow-hidden font-mono h-20 items-stretch ring-1 ring-white/10 z-50">
           <div className="bg-[#111] px-8 flex items-center justify-center border-r-2 border-zinc-800">
               <span className="text-[#00aff0] font-black text-4xl italic tracking-tighter drop-shadow-[0_0_10px_rgba(0,175,240,0.5)]">SNY</span>
@@ -223,48 +219,30 @@ const App: React.FC = () => {
         
         <div className="col-span-12 lg:col-span-9 flex flex-col gap-8">
             
-            {/* Lineup Row + Diamond Element */}
-            <div className="flex gap-4 items-stretch">
-                {/* Lineup Cards */}
-                <div className="flex-1 bg-[#0f172a]/20 rounded-3xl border border-white/5 p-8 flex justify-between items-center gap-4 shadow-inner relative">
-                    {gameState.lineup.batters.map((p, i) => {
-                        const isUp = i === gameState.currentBatterIndex;
-                        return (
-                            <div 
-                                key={p.id}
-                                className={`
-                                    relative flex-1 min-w-0 transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1)
-                                    h-52 bg-gradient-to-br rounded-2xl border-2 flex flex-col items-center justify-between p-4 overflow-hidden
-                                    ${isUp ? 'from-blue-600/10 to-blue-900/20 border-blue-500 shadow-[0_0_30px_rgba(37,99,235,0.2)]' : 'from-zinc-900/50 to-zinc-950 border-zinc-800 opacity-30 grayscale-[0.5]'}
-                                `}
-                            >
-                                {isUp && <div className="absolute inset-0 border-4 border-blue-400/20 pointer-events-none animate-pulse rounded-2xl" />}
-                                <div className={`text-[9px] font-black absolute top-2 left-3 z-20 ${isUp ? 'text-blue-400' : 'text-zinc-600'}`}>#{i+1}</div>
-                                <div className={`w-full aspect-square bg-black/40 rounded-xl overflow-hidden flex items-center justify-center p-2 relative transition-transform duration-700 ${isUp ? 'scale-110' : ''}`}>
-                                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i + 25}.png`} className={`w-full h-full object-contain pixelated`} alt={p.name} />
-                                </div>
-                                <div className="text-center w-full min-w-0 z-20">
-                                    <div className={`font-black truncate text-[10px] uppercase tracking-tighter ${isUp ? 'text-white' : 'text-zinc-500'}`}>{p.name}</div>
-                                </div>
+            {/* Lineup Row - FULL WIDTH */}
+            <div className="bg-[#0f172a]/10 rounded-3xl border border-white/5 p-8 flex justify-between items-center gap-4 shadow-inner relative">
+                {gameState.lineup.batters.map((p, i) => {
+                    const isUp = i === gameState.currentBatterIndex;
+                    return (
+                        <div 
+                            key={p.id}
+                            className={`
+                                relative flex-1 min-w-0 transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1)
+                                h-52 bg-gradient-to-br rounded-2xl border-2 flex flex-col items-center justify-between p-4 overflow-hidden
+                                ${isUp ? 'from-blue-600/10 to-blue-900/20 border-blue-500 shadow-[0_0_30px_rgba(37,99,235,0.2)]' : 'from-zinc-900/50 to-zinc-950 border-zinc-800 opacity-30 grayscale-[0.5]'}
+                            `}
+                        >
+                            {isUp && <div className="absolute inset-0 border-4 border-blue-400/20 pointer-events-none animate-pulse rounded-2xl" />}
+                            <div className={`text-[9px] font-black absolute top-2 left-3 z-20 ${isUp ? 'text-blue-400' : 'text-zinc-600'}`}>#{i+1}</div>
+                            <div className={`w-full aspect-square bg-black/40 rounded-xl overflow-hidden flex items-center justify-center p-2 relative transition-transform duration-700 ${isUp ? 'scale-110' : ''}`}>
+                                <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i + 25}.png`} className={`w-full h-full object-contain pixelated`} alt={p.name} />
                             </div>
-                        )
-                    })}
-                </div>
-
-                {/* Standalone Visual Diamond Element */}
-                <div className="w-52 bg-[#0f172a]/40 rounded-3xl border-2 border-white/10 flex items-center justify-center relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                    <div className="relative w-28 h-28 border-4 border-zinc-800 rotate-45 flex items-center justify-center bg-black/60 shadow-2xl">
-                        {/* Bases - Each base is a visual diamond */}
-                        <div className={`absolute -top-4 -right-4 w-7 h-7 -rotate-45 border-4 transition-all duration-500 ${gameState.runners[1] ? 'bg-[#ffc629] border-white shadow-[0_0_25px_#ffc629] scale-125 z-10' : 'bg-zinc-900 border-zinc-800'}`} title="2nd Base" />
-                        <div className={`absolute top-1/2 -left-4 -translate-y-1/2 w-7 h-7 -rotate-45 border-4 transition-all duration-500 ${gameState.runners[2] ? 'bg-[#ffc629] border-white shadow-[0_0_25px_#ffc629] scale-125 z-10' : 'bg-zinc-900 border-zinc-800'}`} title="3rd Base" />
-                        <div className={`absolute top-1/2 -right-4 -translate-y-1/2 w-7 h-7 -rotate-45 border-4 transition-all duration-500 ${gameState.runners[0] ? 'bg-[#ffc629] border-white shadow-[0_0_25px_#ffc629] scale-125 z-10' : 'bg-zinc-900 border-zinc-800'}`} title="1st Base" />
-                        {/* Home Plate */}
-                        <div className="absolute -bottom-3 -left-3 w-6 h-6 -rotate-45 bg-[#ff5910]/40 rounded-sm border-2 border-white/20 flex items-center justify-center">
-                            <div className="w-1 h-1 bg-white/20 rounded-full" />
+                            <div className="text-center w-full min-w-0 z-20">
+                                <div className={`font-black truncate text-[10px] uppercase tracking-tighter ${isUp ? 'text-white' : 'text-zinc-500'}`}>{p.name}</div>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    )
+                })}
             </div>
 
             {/* Main Stage */}
@@ -304,7 +282,7 @@ const App: React.FC = () => {
                         onClick={simulateInning}
                         className="group px-10 py-8 bg-zinc-800/80 hover:bg-zinc-700 disabled:bg-zinc-950 disabled:text-zinc-800 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all transform active:scale-95 flex items-center gap-4 border border-white/10 backdrop-blur-sm"
                     >
-                        <FastForward size={24}/> FAST FORWARD INNING
+                        <FastForward size={24}/> END INNING
                     </button>
 
                     <button 
@@ -318,30 +296,48 @@ const App: React.FC = () => {
             </div>
         </div>
 
-        {/* Play-by-Play Sidebar */}
-        <div className="col-span-12 lg:col-span-3 flex flex-col bg-[#080808] rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl relative">
-            <div className="p-6 border-b border-white/5 bg-[#1a1a1a]/80 backdrop-blur-xl flex items-center justify-between">
-                <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-[#00aff0] flex items-center gap-3">
-                    <div className="w-2.5 h-2.5 bg-red-600 rounded-full animate-pulse shadow-[0_0_12px_rgba(220,38,38,0.8)]" /> 
-                    Live Coverage
-                </h3>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6 space-y-4 font-mono scroll-smooth">
-                {log.map((entry, i) => (
-                    <div 
-                        key={i} 
-                        className={`
-                            p-4 rounded-xl border leading-relaxed animate-in slide-in-from-right-8 duration-500 shadow-sm
-                            ${entry.type === 'META' ? 'bg-[#00aff0]/10 border-[#00aff0]/30 text-[#00aff0] font-black italic text-center text-xs py-5 my-4' : 
-                              entry.type === 'HIT' ? 'bg-green-900/10 border-green-500/20 text-green-400 text-sm' :
-                              entry.type === 'WALK' ? 'bg-yellow-900/10 border-yellow-500/10 text-yellow-400 text-sm' :
-                              'bg-zinc-900/30 border-white/5 text-zinc-500 text-sm opacity-90'}
-                        `}
-                    >
-                        {entry.msg}
+        {/* Sidebar + Diamond Area */}
+        <div className="col-span-12 lg:col-span-3 flex flex-col gap-6">
+            
+            {/* Visual Diamond - Dedicated Element */}
+            <div className="h-64 bg-[#080808] rounded-[2rem] border border-white/10 shadow-2xl flex items-center justify-center relative overflow-hidden group">
+                <div className="absolute inset-0 bg-blue-600/5 opacity-40" />
+                <div className="relative w-32 h-32 border-4 border-zinc-800/50 rotate-45 flex items-center justify-center bg-black/60 shadow-inner">
+                    {/* Bases */}
+                    <div className={`absolute -top-4 -right-4 w-8 h-8 -rotate-45 border-4 transition-all duration-300 ${gameState.runners[1] ? 'bg-[#ffc629] border-white shadow-[0_0_30px_#ffc629] scale-110 z-10' : 'bg-zinc-900 border-zinc-800'}`} title="2nd Base" />
+                    <div className={`absolute top-1/2 -left-4 -translate-y-1/2 w-8 h-8 -rotate-45 border-4 transition-all duration-300 ${gameState.runners[2] ? 'bg-[#ffc629] border-white shadow-[0_0_30px_#ffc629] scale-110 z-10' : 'bg-zinc-900 border-zinc-800'}`} title="3rd Base" />
+                    <div className={`absolute top-1/2 -right-4 -translate-y-1/2 w-8 h-8 -rotate-45 border-4 transition-all duration-300 ${gameState.runners[0] ? 'bg-[#ffc629] border-white shadow-[0_0_30px_#ffc629] scale-110 z-10' : 'bg-zinc-900 border-zinc-800'}`} title="1st Base" />
+                    {/* Home Plate */}
+                    <div className="absolute -bottom-3.5 -left-3.5 w-7 h-7 -rotate-45 bg-[#ff5910]/30 rounded-sm border-2 border-white/10 flex items-center justify-center">
+                        <div className="w-1.5 h-1.5 bg-white/20 rounded-full" />
                     </div>
-                ))}
-                <div ref={logEndRef} />
+                </div>
+            </div>
+
+            {/* Play-by-Play Sidebar */}
+            <div className="flex-1 min-h-[400px] flex flex-col bg-[#080808] rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl relative">
+                <div className="p-6 border-b border-white/5 bg-[#1a1a1a]/80 backdrop-blur-xl flex items-center justify-between">
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-[#00aff0] flex items-center gap-3">
+                        <div className="w-2.5 h-2.5 bg-red-600 rounded-full animate-pulse shadow-[0_0_12px_rgba(220,38,38,0.8)]" /> 
+                        Live Coverage
+                    </h3>
+                </div>
+                <div className="flex-1 overflow-y-auto p-6 space-y-4 font-mono scroll-smooth">
+                    {log.map((entry, i) => (
+                        <div 
+                            key={i} 
+                            className={`
+                                p-4 rounded-xl border leading-relaxed animate-in slide-in-from-top-4 duration-500 shadow-sm
+                                ${entry.type === 'META' ? 'bg-[#00aff0]/10 border-[#00aff0]/30 text-[#00aff0] font-black italic text-center text-xs py-5 my-4' : 
+                                  entry.type === 'HIT' ? 'bg-green-900/10 border-green-500/20 text-green-400 text-sm' :
+                                  entry.type === 'WALK' ? 'bg-yellow-900/10 border-yellow-500/20 text-yellow-500 text-sm' :
+                                  'bg-zinc-900/30 border-white/5 text-zinc-500 text-sm opacity-90'}
+                            `}
+                        >
+                            {entry.msg}
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
       </div>
