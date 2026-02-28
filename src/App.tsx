@@ -6,6 +6,19 @@ import { ShoppingCart, LayoutPanelLeft, Play, RotateCcw, FastForward, Trophy, In
 
 const GAME_LENGTH = 9;
 
+// Real 2024 Mets Lineup & Stats (Approximated based on typical ratings)
+const METS_LINEUP: Player[] = [
+    { id: 'lindor', name: 'Francisco Lindor', stats: { contact: 85, power: 75, patience: 80, speed: 85 }, abilities: [], imageUrl: 'https://midas.mlbstatic.com/v1/people/596019/spots/120' },
+    { id: 'nimmo', name: 'Brandon Nimmo', stats: { contact: 82, power: 65, patience: 95, speed: 75 }, abilities: [], imageUrl: 'https://midas.mlbstatic.com/v1/people/607043/spots/120' },
+    { id: 'alonso', name: 'Pete Alonso', stats: { contact: 70, power: 98, patience: 75, speed: 40 }, abilities: [ABILITIES.BIG_BATS], imageUrl: 'https://midas.mlbstatic.com/v1/people/624413/spots/120' },
+    { id: 'martinez', name: 'J.D. Martinez', stats: { contact: 78, power: 85, patience: 82, speed: 30 }, abilities: [], imageUrl: 'https://midas.mlbstatic.com/v1/people/502110/spots/120' },
+    { id: 'mcneil', name: 'Jeff McNeil', stats: { contact: 92, power: 45, patience: 70, speed: 60 }, abilities: [ABILITIES.CRUTCH], imageUrl: 'https://midas.mlbstatic.com/v1/people/643446/spots/120' },
+    { id: 'marte', name: 'Starling Marte', stats: { contact: 80, power: 60, patience: 65, speed: 90 }, abilities: [], imageUrl: 'https://midas.mlbstatic.com/v1/people/516782/spots/120' },
+    { id: 'alvarez', name: 'Francisco Alvarez', stats: { contact: 65, power: 88, patience: 70, speed: 45 }, abilities: [], imageUrl: 'https://midas.mlbstatic.com/v1/people/682626/spots/120' },
+    { id: 'baty', name: 'Brett Baty', stats: { contact: 72, power: 70, patience: 75, speed: 55 }, abilities: [], imageUrl: 'https://midas.mlbstatic.com/v1/people/683146/spots/120' },
+    { id: 'bader', name: 'Harrison Bader', stats: { contact: 68, power: 55, patience: 60, speed: 95 }, abilities: [], imageUrl: 'https://midas.mlbstatic.com/v1/people/664056/spots/120' },
+];
+
 const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [log, setLog] = useState<{msg: string, type: 'HIT' | 'OUT' | 'WALK' | 'META'}[]>([]);
@@ -14,39 +27,21 @@ const App: React.FC = () => {
   const logEndRef = useRef<HTMLDivElement>(null);
 
   const initializeGame = () => {
-    const bigBats = ABILITIES.BIG_BATS;
-    const crutch = ABILITIES.CRUTCH;
-    
-    const names = ['Speedy Gonzalez', 'Slugger Sam', 'Steady Eddie', 'Bo Jackson', 'Deion Sanders', 'Babe Ruth', 'Ted Williams', 'Willie Mays', 'Hank Aaron'];
-    const lineupBatters: Player[] = names.map((name, i) => ({
-      id: `p-${i}-${Math.random()}`,
-      name,
-      stats: {
-        contact: 40 + Math.floor(Math.random() * 40),
-        power: 40 + Math.floor(Math.random() * 40),
-        patience: 40 + Math.floor(Math.random() * 40),
-        speed: 40 + Math.floor(Math.random() * 40),
-      },
-      abilities: i === 1 && bigBats ? [bigBats] : (i === 2 && crutch ? [crutch] : []),
-    }));
-
     setGameState({
-      lineup: { batters: lineupBatters },
+      lineup: { batters: JSON.parse(JSON.stringify(METS_LINEUP)) },
       inning: 1,
       outs: 0,
       score: 0,
       runners: [null, null, null],
       currentBatterIndex: 0,
     });
-    setLog([{msg: '🏟️ Welcome to the Stadium! Season Opener is underway.', type: 'META'}]);
+    setLog([{msg: '🏟️ Live from Citi Field! The Mets are taking the field.', type: 'META'}]);
     setOverlay(null);
   };
 
   useEffect(() => {
     initializeGame();
   }, []);
-
-  // Removed smooth scroll to end since we are flipping the log
 
   const getLogType = (res: Result): 'HIT' | 'OUT' | 'WALK' => {
       if (res === 'WALK') return 'WALK';
@@ -59,10 +54,10 @@ const App: React.FC = () => {
     const runsScored = nextState.score - prevState.score;
     
     if (result === 'HOME_RUN') msg = `🚀 ${batter.name} CRUSHES A HOME RUN!`;
-    else if (result === 'WALK') msg = `🚶 ${batter.name} draws a walk.`;
-    else if (result === 'STRIKEOUT') msg = `🚫 ${batter.name} strikes out looking.`;
-    else if (result === 'OUT') msg = `⚾ ${batter.name} made an out.`;
-    else msg = `🔥 ${batter.name} rips a ${result.toLowerCase()}.`;
+    else if (result === 'WALK') msg = `🚶 ${batter.name} works a great at-bat and draws a walk.`;
+    else if (result === 'STRIKEOUT') msg = `🚫 ${batter.name} goes down swinging.`;
+    else if (result === 'OUT') msg = `⚾ ${batter.name} lines out to the outfield.`;
+    else msg = `🔥 ${batter.name} finds the gap for a ${result.toLowerCase()}!`;
 
     if (runsScored > 0) {
         msg += ` ${runsScored} run${runsScored > 1 ? 's' : ''} score${runsScored === 1 ? 's' : ''}!`;
@@ -89,7 +84,7 @@ const App: React.FC = () => {
     const newLogs: {msg: string, type: any}[] = [{msg, type: getLogType(result)}];
     
     if (nextState.outs >= 3) {
-        newLogs.unshift({msg: `🏁 End Inning ${gameState.inning}. Score: ${nextState.score}`, type: 'META'});
+        newLogs.unshift({msg: `🏁 Side retired in the ${gameState.inning}. Mets: ${nextState.score}`, type: 'META'});
         if (gameState.inning >= GAME_LENGTH) {
             setOverlay('GAME_OVER');
         } else {
@@ -116,8 +111,7 @@ const App: React.FC = () => {
         const prevState = JSON.parse(JSON.stringify(currentState));
         const result = Engine.simulatePlateAppearance(batter);
         currentState = Engine.processResult(currentState, result);
-        const msg = generateNarrative(batter, result, prevState, currentState);
-        newLogs.unshift({msg, type: getLogType(result)});
+        newLogs.unshift({msg: generateNarrative(batter, result, prevState, currentState), type: getLogType(result)});
     }
     
     newLogs.unshift({msg: `🏁 End Inning ${startInning} --- Score: ${currentState.score}`, type: 'META'});
@@ -195,7 +189,7 @@ const App: React.FC = () => {
               <span className="text-5xl font-black ml-auto opacity-10">0</span>
           </div>
 
-          <div className="flex flex-col justify-center px-8 border-r-2 border-zinc-800 bg-[#050505] min-w-[100px] items-center">
+          <div className="flex flex-col justify-center px-8 border-r-2 border-zinc-800 bg-[#050505] min-w-[100px] items-center text-center">
               <span className="text-xl font-black leading-none mb-1 text-[#00aff0]">▲{Math.min(gameState.inning, GAME_LENGTH)}</span>
               <span className="text-[11px] text-zinc-500 font-black uppercase leading-none tracking-widest">INN</span>
           </div>
@@ -220,7 +214,7 @@ const App: React.FC = () => {
         <div className="col-span-12 lg:col-span-9 flex flex-col gap-8">
             
             {/* Lineup Row - FULL WIDTH */}
-            <div className="bg-[#0f172a]/10 rounded-3xl border border-white/5 p-8 flex justify-between items-center gap-4 shadow-inner relative">
+            <div className="bg-[#0f172a]/10 rounded-3xl border border-white/5 p-8 flex justify-between items-center gap-4 shadow-inner relative overflow-visible">
                 {gameState.lineup.batters.map((p, i) => {
                     const isUp = i === gameState.currentBatterIndex;
                     return (
@@ -228,14 +222,14 @@ const App: React.FC = () => {
                             key={p.id}
                             className={`
                                 relative flex-1 min-w-0 transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1)
-                                h-52 bg-gradient-to-br rounded-2xl border-2 flex flex-col items-center justify-between p-4 overflow-hidden
+                                h-52 bg-gradient-to-br rounded-2xl border-2 flex flex-col items-center justify-between p-4
                                 ${isUp ? 'from-blue-600/10 to-blue-900/20 border-blue-500 shadow-[0_0_30px_rgba(37,99,235,0.2)]' : 'from-zinc-900/50 to-zinc-950 border-zinc-800 opacity-30 grayscale-[0.5]'}
                             `}
                         >
                             {isUp && <div className="absolute inset-0 border-4 border-blue-400/20 pointer-events-none animate-pulse rounded-2xl" />}
                             <div className={`text-[9px] font-black absolute top-2 left-3 z-20 ${isUp ? 'text-blue-400' : 'text-zinc-600'}`}>#{i+1}</div>
                             <div className={`w-full aspect-square bg-black/40 rounded-xl overflow-hidden flex items-center justify-center p-2 relative transition-transform duration-700 ${isUp ? 'scale-110' : ''}`}>
-                                <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i + 25}.png`} className={`w-full h-full object-contain pixelated`} alt={p.name} />
+                                <img src={p.imageUrl} className={`w-full h-full object-cover transition-transform duration-500 ${isUp ? 'scale-125' : ''}`} alt={p.name} />
                             </div>
                             <div className="text-center w-full min-w-0 z-20">
                                 <div className={`font-black truncate text-[10px] uppercase tracking-tighter ${isUp ? 'text-white' : 'text-zinc-500'}`}>{p.name}</div>
@@ -296,33 +290,18 @@ const App: React.FC = () => {
             </div>
         </div>
 
-        {/* Sidebar + Diamond Area */}
+        {/* Sidebar Log + Visual Diamond Container */}
         <div className="col-span-12 lg:col-span-3 flex flex-col gap-6">
             
-            {/* Visual Diamond - Dedicated Element */}
-            <div className="h-64 bg-[#080808] rounded-[2rem] border border-white/10 shadow-2xl flex items-center justify-center relative overflow-hidden group">
-                <div className="absolute inset-0 bg-blue-600/5 opacity-40" />
-                <div className="relative w-32 h-32 border-4 border-zinc-800/50 rotate-45 flex items-center justify-center bg-black/60 shadow-inner">
-                    {/* Bases */}
-                    <div className={`absolute -top-4 -right-4 w-8 h-8 -rotate-45 border-4 transition-all duration-300 ${gameState.runners[1] ? 'bg-[#ffc629] border-white shadow-[0_0_30px_#ffc629] scale-110 z-10' : 'bg-zinc-900 border-zinc-800'}`} title="2nd Base" />
-                    <div className={`absolute top-1/2 -left-4 -translate-y-1/2 w-8 h-8 -rotate-45 border-4 transition-all duration-300 ${gameState.runners[2] ? 'bg-[#ffc629] border-white shadow-[0_0_30px_#ffc629] scale-110 z-10' : 'bg-zinc-900 border-zinc-800'}`} title="3rd Base" />
-                    <div className={`absolute top-1/2 -right-4 -translate-y-1/2 w-8 h-8 -rotate-45 border-4 transition-all duration-300 ${gameState.runners[0] ? 'bg-[#ffc629] border-white shadow-[0_0_30px_#ffc629] scale-110 z-10' : 'bg-zinc-900 border-zinc-800'}`} title="1st Base" />
-                    {/* Home Plate */}
-                    <div className="absolute -bottom-3.5 -left-3.5 w-7 h-7 -rotate-45 bg-[#ff5910]/30 rounded-sm border-2 border-white/10 flex items-center justify-center">
-                        <div className="w-1.5 h-1.5 bg-white/20 rounded-full" />
-                    </div>
-                </div>
-            </div>
-
-            {/* Play-by-Play Sidebar */}
-            <div className="flex-1 min-h-[400px] flex flex-col bg-[#080808] rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl relative">
-                <div className="p-6 border-b border-white/5 bg-[#1a1a1a]/80 backdrop-blur-xl flex items-center justify-between">
+            {/* Play-by-Play Sidebar - 2/3 Height */}
+            <div className="flex-[2] flex flex-col bg-[#080808] rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl relative">
+                <div className="p-6 border-b border-white/5 bg-[#1a1a1a]/80 backdrop-blur-xl">
                     <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-[#00aff0] flex items-center gap-3">
                         <div className="w-2.5 h-2.5 bg-red-600 rounded-full animate-pulse shadow-[0_0_12px_rgba(220,38,38,0.8)]" /> 
                         Live Coverage
                     </h3>
                 </div>
-                <div className="flex-1 overflow-y-auto p-6 space-y-4 font-mono scroll-smooth">
+                <div className="flex-1 overflow-y-auto p-6 space-y-4 font-mono">
                     {log.map((entry, i) => (
                         <div 
                             key={i} 
@@ -338,6 +317,22 @@ const App: React.FC = () => {
                         </div>
                     ))}
                 </div>
+            </div>
+
+            {/* Visual Diamond Element - 1/3 Width of total sidebar area implicitly */}
+            <div className="h-72 bg-gradient-to-br from-[#0f172a] to-black rounded-[2.5rem] border border-white/10 shadow-2xl flex items-center justify-center relative overflow-hidden group">
+                <div className="absolute inset-0 bg-blue-600/5 opacity-40" />
+                <div className="relative w-40 h-40 border-4 border-zinc-800/50 rotate-45 flex items-center justify-center bg-black/60 shadow-inner">
+                    {/* Bases */}
+                    <div className={`absolute -top-5 -right-5 w-10 h-10 -rotate-45 border-4 transition-all duration-300 ${gameState.runners[1] ? 'bg-[#ffc629] border-white shadow-[0_0_40px_#ffc629] scale-110 z-10' : 'bg-zinc-900 border-zinc-800'}`} title="2nd Base" />
+                    <div className={`absolute top-1/2 -left-5 -translate-y-1/2 w-10 h-10 -rotate-45 border-4 transition-all duration-300 ${gameState.runners[2] ? 'bg-[#ffc629] border-white shadow-[0_0_40px_#ffc629] scale-110 z-10' : 'bg-zinc-900 border-zinc-800'}`} title="3rd Base" />
+                    <div className={`absolute top-1/2 -right-5 -translate-y-1/2 w-10 h-10 -rotate-45 border-4 transition-all duration-300 ${gameState.runners[0] ? 'bg-[#ffc629] border-white shadow-[0_0_40px_#ffc629] scale-110 z-10' : 'bg-zinc-900 border-zinc-800'}`} title="1st Base" />
+                    {/* Home Plate */}
+                    <div className="absolute -bottom-4 -left-4 w-9 h-9 -rotate-45 bg-[#ff5910]/30 rounded-sm border-2 border-white/10 flex items-center justify-center shadow-[0_0_20px_rgba(255,89,16,0.2)]">
+                        <div className="w-2 h-2 bg-white/20 rounded-full" />
+                    </div>
+                </div>
+                <div className="absolute bottom-6 font-black text-[10px] uppercase tracking-[0.4em] text-zinc-700 group-hover:text-blue-500 transition-colors">Infield Tracker</div>
             </div>
         </div>
       </div>
