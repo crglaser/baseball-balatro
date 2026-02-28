@@ -2,14 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { type GameState, type Player, type Result } from './types.js';
 import { Engine } from './engine.js';
 import { ABILITIES } from './abilities.js';
-import { ShoppingCart, LayoutPanelLeft, Play, RotateCcw, FastForward, Trophy, Info, SkipForward } from 'lucide-react';
+import { ShoppingCart, LayoutPanelLeft, Play, RotateCcw, FastForward, Trophy, SkipForward } from 'lucide-react';
 
 const GAME_LENGTH = 9;
 
-/**
- * 2026 Projected Mets Lineup
- * Source: Fangraphs Roster Resource Depth Charts (2026 Projection)
- */
+// Real 2026 Projected Mets Lineup & Stats (Soto, Lindor, Bichette, Alonso, Vientos, Semien, Nimmo, Alvarez, Gilbert)
 const METS_2026_LINEUP: Player[] = [
     { id: '665742', name: 'Juan Soto (LF)', stats: { contact: 92, power: 98, patience: 99, speed: 60 }, abilities: [ABILITIES.BIG_BATS], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/665742/headshot/67/current' },
     { id: '596019', name: 'Francisco Lindor (SS)', stats: { contact: 86, power: 75, patience: 82, speed: 85 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/596019/headshot/67/current' },
@@ -38,7 +35,7 @@ const App: React.FC = () => {
       runners: [null, null, null],
       currentBatterIndex: 0,
     });
-    setLog([{msg: '🏟️ Welcome to Citi Field! Opening Day 2026 is here.', type: 'META'}]);
+    setLog([{msg: '🏟️ Opening Day 2026 at Citi Field!', type: 'META'}]);
     setOverlay(null);
   };
 
@@ -57,7 +54,7 @@ const App: React.FC = () => {
     const runsScored = nextState.score - prevState.score;
     
     if (result === 'HOME_RUN') msg = `🚀 ${batter.name} CRUSHES A HOME RUN!`;
-    else if (result === 'WALK') msg = `🚶 ${batter.name} draws a walk.`;
+    else if (result === 'WALK') msg = `🚶 ${batter.name} works a walk.`;
     else if (result === 'STRIKEOUT') msg = `🚫 ${batter.name} strikes out.`;
     else if (result === 'OUT') msg = `⚾ ${batter.name} made an out.`;
     else msg = `🔥 ${batter.name} rips a ${result.toLowerCase()}!`;
@@ -85,7 +82,7 @@ const App: React.FC = () => {
     const newLogs: {msg: string, type: any}[] = [{msg, type: getLogType(result)}];
     
     if (nextState.outs >= 3) {
-        newLogs.unshift({msg: `🏁 End Inning ${gameState.inning}. Score: ${nextState.score}`, type: 'META'});
+        newLogs.unshift({msg: `🏁 End Inning ${gameState.inning}. Mets: ${nextState.score}`, type: 'META'});
         if (gameState.inning >= GAME_LENGTH) {
             setOverlay('GAME_OVER');
         } else {
@@ -207,7 +204,7 @@ const App: React.FC = () => {
 
       <div className="max-w-[1600px] w-full flex flex-col gap-6 p-6 flex-1">
         
-        {/* Lineup Section - Full Visibility */}
+        {/* Lineup Section */}
         <div className="bg-[#0f172a]/10 rounded-3xl border border-white/5 p-6 flex justify-between items-center gap-4 shadow-inner relative overflow-visible">
             {gameState.lineup.batters.map((p, i) => {
                 const isUp = i === gameState.currentBatterIndex;
@@ -223,7 +220,7 @@ const App: React.FC = () => {
                         {isUp && <div className="absolute inset-0 border-4 border-blue-400/20 pointer-events-none animate-pulse rounded-2xl" />}
                         <div className={`text-[9px] font-black absolute top-2 left-3 z-20 ${isUp ? 'text-blue-400' : 'text-zinc-600'}`}>#{i+1}</div>
                         <div className={`w-full aspect-square bg-black/20 rounded-xl overflow-hidden flex items-center justify-center p-1 relative transition-transform duration-700 ${isUp ? 'scale-110' : ''}`}>
-                            <img src={p.imageUrl} className={`w-full h-full object-contain transition-transform duration-500 ${isUp ? 'scale-110' : ''}`} alt={p.name} />
+                            <img src={p.imageUrl} className={`w-full h-full object-cover transition-transform duration-500 ${isUp ? 'scale-110' : ''}`} alt={p.name} />
                         </div>
                         <div className="text-center w-full min-w-0 z-20">
                             <div className={`font-black truncate text-[9px] uppercase tracking-tighter ${isUp ? 'text-white' : 'text-zinc-500'}`}>{p.name.split(' (')[0]}</div>
@@ -233,9 +230,9 @@ const App: React.FC = () => {
             })}
         </div>
 
-        {/* Main Interaction Area */}
-        <div className="grid grid-cols-12 gap-8 flex-1 min-h-0">
-            {/* Play Stage */}
+        {/* Main Stage */}
+        <div className="grid grid-cols-12 gap-8 flex-1 min-h-[500px]">
+            {/* Play Area */}
             <div className="col-span-12 lg:col-span-8 flex flex-col gap-6">
                 <div className="flex-1 bg-gradient-to-b from-[#0a0a0a] to-[#030303] rounded-[3rem] border border-white/10 relative overflow-hidden shadow-2xl flex flex-row items-center justify-between p-12 ring-1 ring-white/5">
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
@@ -249,12 +246,12 @@ const App: React.FC = () => {
                         
                         <div className="flex gap-12 font-mono">
                                 <div className="text-left space-y-1">
-                                    <div className="text-[11px] font-black text-zinc-500 uppercase tracking-widest">Contact</div>
+                                    <div className="text-[11px] font-black text-zinc-600 uppercase tracking-widest">Contact</div>
                                     <div className="text-6xl font-black text-blue-400 tabular-nums">{gameState.lineup.batters[gameState.currentBatterIndex]?.stats.contact}</div>
                                 </div>
                                 <div className="w-px bg-white/5 h-16 self-end" />
                                 <div className="text-left space-y-1">
-                                    <div className="text-[11px] font-black text-zinc-500 uppercase tracking-widest">Power</div>
+                                    <div className="text-[11px] font-black text-zinc-600 uppercase tracking-widest">Power</div>
                                     <div className="text-6xl font-black text-orange-500 tabular-nums">{gameState.lineup.batters[gameState.currentBatterIndex]?.stats.power}</div>
                                 </div>
                         </div>
@@ -265,21 +262,13 @@ const App: React.FC = () => {
                                 onClick={playPlateAppearance}
                                 className="group relative px-12 py-7 bg-[#00aff0] hover:bg-[#009ee0] disabled:bg-zinc-900 disabled:text-zinc-700 rounded-2xl text-2xl font-black uppercase tracking-[0.2em] shadow-[0_10px_60px_rgba(0,175,240,0.3)] transition-all transform active:scale-95 hover:scale-105 ring-1 ring-white/30"
                             >
-                                <span className="relative flex items-center gap-4 italic"><Play fill="currentColor" size={28}/> NEXT PITCH</span>
+                                <Play fill="currentColor" size={28}/> NEXT PITCH
                             </button>
                             <div className="flex flex-col gap-3">
-                                <button 
-                                    disabled={gameState.inning > GAME_LENGTH || !!overlay}
-                                    onClick={simulateInning}
-                                    className="group px-8 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all transform active:scale-95 border border-white/10 flex items-center gap-3"
-                                >
+                                <button onClick={simulateInning} className="group px-8 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-3">
                                     <FastForward size={16}/> SIM INN
                                 </button>
-                                <button 
-                                    disabled={gameState.inning > GAME_LENGTH || !!overlay}
-                                    onClick={simulateFullGame}
-                                    className="group px-8 py-3 bg-white hover:bg-slate-200 text-black rounded-xl text-[10px] font-black uppercase tracking-widest transition-all transform active:scale-95 flex items-center gap-3 shadow-2xl"
-                                >
+                                <button onClick={simulateFullGame} className="group px-8 py-3 bg-white hover:bg-slate-200 text-black rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-3">
                                     <SkipForward size={16}/> SIM GAME
                                 </button>
                             </div>
@@ -289,7 +278,6 @@ const App: React.FC = () => {
                     {/* Right: GIANT INFIELD TRACKER */}
                     <div className="w-[450px] h-[450px] bg-black/40 rounded-[2.5rem] border-2 border-white/5 flex items-center justify-center relative shadow-[inset_0_0_100px_rgba(0,0,0,0.9)] group ml-8 z-10 backdrop-blur-sm">
                         <div className="relative w-72 h-72 border-[12px] border-zinc-900 rotate-45 flex items-center justify-center bg-black/60 shadow-2xl">
-                            {/* Bases */}
                             <div className={`absolute -top-12 -right-12 w-24 h-24 -rotate-45 border-4 flex items-center justify-center transition-all duration-500 shadow-2xl ${gameState.runners[1] ? 'bg-[#ffc629] border-white shadow-[0_0_60px_#ffc629] scale-110 z-10' : 'bg-zinc-950 border-zinc-800 opacity-40'}`}>
                                 <span className={`text-4xl font-black ${gameState.runners[1] ? 'text-black' : 'text-zinc-800'}`}>2</span>
                             </div>
@@ -299,24 +287,22 @@ const App: React.FC = () => {
                             <div className={`absolute top-1/2 -right-12 -translate-y-1/2 w-24 h-24 -rotate-45 border-4 flex items-center justify-center transition-all duration-500 shadow-2xl ${gameState.runners[0] ? 'bg-[#ffc629] border-white shadow-[0_0_60px_#ffc629] scale-110 z-10' : 'bg-zinc-950 border-zinc-800 opacity-40'}`}>
                                 <span className={`text-4xl font-black ${gameState.runners[0] ? 'text-black' : 'text-zinc-800'}`}>1</span>
                             </div>
-                            {/* Home Plate */}
                             <div className="absolute -bottom-8 -left-8 w-16 h-16 -rotate-45 bg-[#ff5910]/40 rounded-sm border-2 border-white/10 flex items-center justify-center shadow-[0_0_40px_rgba(255,89,16,0.3)]">
                                 <div className="w-4 h-4 bg-white/40 rounded-full" />
                             </div>
                         </div>
-                        <div className="absolute bottom-6 font-black text-xs uppercase tracking-[0.5em] text-zinc-700 group-hover:text-[#00aff0] transition-colors">Visual Diamond</div>
                     </div>
                 </div>
             </div>
 
-            {/* Coverage Sidebar */}
+            {/* Sidebar Log */}
             <div className="col-span-12 lg:col-span-4 flex flex-col bg-[#080808] rounded-[3rem] border border-white/10 overflow-hidden shadow-2xl relative">
-                <div className="p-6 border-b border-white/5 bg-[#1a1a1a]/80 backdrop-blur-xl flex items-center justify-between">
+                <div className="p-6 border-b border-white/5 bg-[#1a1a1a]/80 backdrop-blur-xl">
                     <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-[#00aff0] flex items-center gap-3">
                         <div className="w-2.5 h-2.5 bg-red-600 rounded-full animate-pulse shadow-[0_0_12px_rgba(220,38,38,0.8)]" /> Live Coverage
                     </h3>
                 </div>
-                <div className="flex-1 overflow-y-auto p-6 space-y-4 font-mono scroll-smooth">
+                <div className="flex-1 overflow-y-auto p-6 space-y-4 font-mono">
                     {log.map((entry, i) => (
                         <div 
                             key={i} 
@@ -341,16 +327,15 @@ const App: React.FC = () => {
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-2xl animate-in fade-in duration-700 p-8">
               <div className="text-center max-w-lg space-y-10 animate-in zoom-in-95 duration-700">
                   <div className="flex justify-center">
-                      <div className="p-10 bg-blue-500/10 rounded-full border-4 border-blue-500/30 shadow-[0_0_100px_rgba(37,99,235,0.2)] relative">
+                      <div className="p-10 bg-blue-500/10 rounded-full border-4 border-blue-500/30 shadow-[0_0_100px_rgba(37,99,235,0.2)]">
                           <Trophy size={120} className="text-blue-500" />
-                          <div className="absolute inset-0 animate-ping rounded-full border border-blue-500/20" />
                       </div>
                   </div>
                   <div className="space-y-4">
                       <h2 className="text-xl font-black text-blue-400 uppercase tracking-[0.5em]">Game Set Match</h2>
                       <div className="text-8xl font-black text-white italic tracking-tighter">FINAL: {gameState.score}</div>
                   </div>
-                  <button onClick={initializeGame} className="w-full py-8 bg-blue-600 hover:bg-blue-500 text-white rounded-3xl text-3xl font-black uppercase tracking-widest transition-all transform active:scale-95 shadow-2xl">
+                  <button onClick={initializeGame} className="w-full py-8 bg-blue-600 hover:bg-blue-500 text-white rounded-3xl text-3xl font-black uppercase transition-all transform active:scale-95 shadow-2xl">
                       <RotateCcw size={32} className="inline mr-4" /> New Season
                   </button>
               </div>
