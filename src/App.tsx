@@ -6,17 +6,29 @@ import { ShoppingCart, LayoutPanelLeft, Play, RotateCcw, FastForward, Trophy, In
 
 const GAME_LENGTH = 9;
 
-// Projected 2026 Mets Lineup (Speculative based on current core + prospects)
+/**
+ * 2026 Projected Mets Lineup
+ * Source: Fangraphs Roster Resource Depth Charts
+ * Francisco Lindor (SS)
+ * Brandon Nimmo (CF)
+ * Mark Vientos (3B)
+ * Pete Alonso (1B)
+ * Starling Marte (RF)
+ * Francisco Alvarez (C)
+ * Jeff McNeil (2B)
+ * Tyrone Taylor (LF)
+ * Brett Baty (DH)
+ */
 const METS_2026_LINEUP: Player[] = [
-    { id: 'lindor', name: 'Francisco Lindor (SS)', stats: { contact: 88, power: 72, patience: 85, speed: 80 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/596019/headshot/67/current' },
-    { id: 'nimmo', name: 'Brandon Nimmo (CF)', stats: { contact: 84, power: 60, patience: 98, speed: 70 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/607043/headshot/67/current' },
-    { id: 'alonso', name: 'Pete Alonso (1B)', stats: { contact: 68, power: 99, patience: 78, speed: 35 }, abilities: [ABILITIES.BIG_BATS], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/624413/headshot/67/current' },
-    { id: 'alvarez', name: 'Francisco Alvarez (C)', stats: { contact: 75, power: 92, patience: 75, speed: 40 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/682626/headshot/67/current' },
-    { id: 'vientos', name: 'Mark Vientos (3B)', stats: { contact: 72, power: 88, patience: 70, speed: 45 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/668901/headshot/67/current' },
-    { id: 'mcneil', name: 'Jeff McNeil (2B)', stats: { contact: 90, power: 42, patience: 75, speed: 55 }, abilities: [ABILITIES.CRUTCH], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/643446/headshot/67/current' },
-    { id: 'gilbert', name: 'Drew Gilbert (LF)', stats: { contact: 78, power: 75, patience: 82, speed: 85 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/694836/headshot/67/current' },
-    { id: 'acuna', name: 'Luisangel Acuña (DH)', stats: { contact: 80, power: 55, patience: 72, speed: 95 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/682668/headshot/67/current' },
-    { id: 'jett', name: 'Jett Williams (RF)', stats: { contact: 82, power: 50, patience: 92, speed: 92 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/701424/headshot/67/current' },
+    { id: '596019', name: 'Francisco Lindor (SS)', stats: { contact: 85, power: 78, patience: 82, speed: 85 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/596019/headshot/67/current' },
+    { id: '607043', name: 'Brandon Nimmo (CF)', stats: { contact: 82, power: 65, patience: 98, speed: 75 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/607043/headshot/67/current' },
+    { id: '668901', name: 'Mark Vientos (3B)', stats: { contact: 75, power: 92, patience: 72, speed: 45 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/668901/headshot/67/current' },
+    { id: '624413', name: 'Pete Alonso (1B)', stats: { contact: 70, power: 98, patience: 78, speed: 35 }, abilities: [ABILITIES.BIG_BATS], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/624413/headshot/67/current' },
+    { id: '516782', name: 'Starling Marte (RF)', stats: { contact: 78, power: 58, patience: 65, speed: 88 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/516782/headshot/67/current' },
+    { id: '682626', name: 'Francisco Alvarez (C)', stats: { contact: 68, power: 94, patience: 75, speed: 40 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/682626/headshot/67/current' },
+    { id: '643446', name: 'Jeff McNeil (2B)', stats: { contact: 92, power: 42, patience: 78, speed: 55 }, abilities: [ABILITIES.CRUTCH], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/643446/headshot/67/current' },
+    { id: '621438', name: 'Tyrone Taylor (LF)', stats: { contact: 76, power: 72, patience: 68, speed: 82 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/621438/headshot/67/current' },
+    { id: '683146', name: 'Brett Baty (DH)', stats: { contact: 74, power: 78, patience: 75, speed: 50 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/683146/headshot/67/current' },
 ];
 
 const App: React.FC = () => {
@@ -35,7 +47,7 @@ const App: React.FC = () => {
       runners: [null, null, null],
       currentBatterIndex: 0,
     });
-    setLog([{msg: '⚾ Live from New Citi Field! Opening Day 2026.', type: 'META'}]);
+    setLog([{msg: '🏟️ Welcome to Citi Field! 2026 Season starts now.', type: 'META'}]);
     setOverlay(null);
   };
 
@@ -54,7 +66,7 @@ const App: React.FC = () => {
     const runsScored = nextState.score - prevState.score;
     
     if (result === 'HOME_RUN') msg = `🚀 ${batter.name} CRUSHES A HOME RUN!`;
-    else if (result === 'WALK') msg = `🚶 ${batter.name} works a walk.`;
+    else if (result === 'WALK') msg = `🚶 ${batter.name} draws a walk.`;
     else if (result === 'STRIKEOUT') msg = `🚫 ${batter.name} strikes out.`;
     else if (result === 'OUT') msg = `⚾ ${batter.name} made an out.`;
     else msg = `🔥 ${batter.name} rips a ${result.toLowerCase()}!`;
@@ -82,7 +94,7 @@ const App: React.FC = () => {
     const newLogs: {msg: string, type: any}[] = [{msg, type: getLogType(result)}];
     
     if (nextState.outs >= 3) {
-        newLogs.unshift({msg: `🏁 Side retired in the ${gameState.inning}. Score: ${nextState.score}`, type: 'META'});
+        newLogs.unshift({msg: `🏁 End Inning ${gameState.inning}. Mets Score: ${nextState.score}`, type: 'META'});
         if (gameState.inning >= GAME_LENGTH) {
             setOverlay('GAME_OVER');
         } else {
@@ -160,7 +172,7 @@ const App: React.FC = () => {
     setGameState(currentState);
   };
 
-  if (!gameState) return <div className="p-8 text-white font-mono">Loading stadium...</div>;
+  if (!gameState) return <div className="p-8 text-white font-mono">Opening stadium gates...</div>;
 
   return (
     <div className="min-h-screen bg-[#050505] text-slate-100 font-sans selection:bg-blue-500/30 flex flex-col items-center overflow-x-hidden">
@@ -202,7 +214,7 @@ const App: React.FC = () => {
           </div>
       </div>
 
-      <div className="max-w-[1400px] w-full flex flex-col gap-6 p-6 flex-1">
+      <div className="max-w-[1600px] w-full flex flex-col gap-6 p-6 flex-1">
         
         {/* Lineup Section - Full Visibility */}
         <div className="bg-[#0f172a]/10 rounded-3xl border border-white/5 p-6 flex justify-between items-center gap-4 shadow-inner relative overflow-visible">
@@ -220,7 +232,7 @@ const App: React.FC = () => {
                         {isUp && <div className="absolute inset-0 border-4 border-blue-400/20 pointer-events-none animate-pulse rounded-2xl" />}
                         <div className={`text-[9px] font-black absolute top-2 left-3 z-20 ${isUp ? 'text-blue-400' : 'text-zinc-600'}`}>#{i+1}</div>
                         <div className={`w-full aspect-square bg-black/20 rounded-xl overflow-hidden flex items-center justify-center p-1 relative transition-transform duration-700 ${isUp ? 'scale-110' : ''}`}>
-                            <img src={p.imageUrl} className={`w-full h-full object-cover transition-transform duration-500 ${isUp ? 'scale-110' : ''}`} alt={p.name} onError={(e) => { (e.target as any).src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i + 25}.png` }} />
+                            <img src={p.imageUrl} className={`w-full h-full object-cover transition-transform duration-500 ${isUp ? 'scale-110' : ''}`} alt={p.name} />
                         </div>
                         <div className="text-center w-full min-w-0 z-20">
                             <div className={`font-black truncate text-[9px] uppercase tracking-tighter ${isUp ? 'text-white' : 'text-zinc-500'}`}>{p.name.split(' (')[0]}</div>
@@ -231,79 +243,83 @@ const App: React.FC = () => {
         </div>
 
         {/* Main Interaction Area */}
-        <div className="grid grid-cols-12 gap-6 flex-1 min-h-0">
+        <div className="grid grid-cols-12 gap-8 flex-1 min-h-0">
             {/* Play Stage */}
             <div className="col-span-12 lg:col-span-8 flex flex-col gap-6">
-                <div className="flex-1 bg-gradient-to-b from-[#0a0a0a] to-[#030303] rounded-[3rem] border border-white/5 relative overflow-hidden shadow-2xl flex flex-col items-center justify-center p-10 ring-1 ring-white/5">
+                <div className="flex-1 bg-gradient-to-b from-[#0a0a0a] to-[#030303] rounded-[3rem] border border-white/10 relative overflow-hidden shadow-2xl flex flex-row items-center justify-between p-12 ring-1 ring-white/5">
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
                     
-                    <div className="flex w-full items-center justify-center gap-12 relative z-10 px-8">
-                        {/* Batter Info */}
-                        <div className="flex-1 text-right space-y-4">
-                            <h2 className="text-xs font-black text-[#00aff0] uppercase tracking-[0.4em] animate-pulse">Now Batting</h2>
-                            <div className="text-6xl font-black italic tracking-tighter text-white drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">{gameState.lineup.batters[gameState.currentBatterIndex]?.name}</div>
-                            <div className="flex justify-end gap-10 font-mono">
-                                <div className="text-right">
-                                    <div className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Contact</div>
-                                    <div className="text-4xl font-black text-blue-400">{gameState.lineup.batters[gameState.currentBatterIndex]?.stats.contact}</div>
+                    {/* Left: Batter Info */}
+                    <div className="flex-1 text-left space-y-6 relative z-10">
+                        <div className="space-y-1">
+                            <h2 className="text-sm font-black text-[#00aff0] uppercase tracking-[0.4em] animate-pulse">Now Batting</h2>
+                            <div className="text-7xl font-black italic tracking-tighter text-white drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] leading-tight">{gameState.lineup.batters[gameState.currentBatterIndex]?.name}</div>
+                        </div>
+                        
+                        <div className="flex gap-12 font-mono">
+                                <div className="text-left space-y-1">
+                                    <div className="text-[11px] font-black text-zinc-500 uppercase tracking-widest">Contact Rating</div>
+                                    <div className="text-6xl font-black text-blue-400 tabular-nums">{gameState.lineup.batters[gameState.currentBatterIndex]?.stats.contact}</div>
                                 </div>
-                                <div className="text-right">
-                                    <div className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Power</div>
-                                    <div className="text-4xl font-black text-orange-500">{gameState.lineup.batters[gameState.currentBatterIndex]?.stats.power}</div>
+                                <div className="w-px bg-white/5 h-16 self-end" />
+                                <div className="text-left space-y-1">
+                                    <div className="text-[11px] font-black text-zinc-500 uppercase tracking-widest">Power Potential</div>
+                                    <div className="text-6xl font-black text-orange-500 tabular-nums">{gameState.lineup.batters[gameState.currentBatterIndex]?.stats.power}</div>
                                 </div>
-                            </div>
                         </div>
 
-                        {/* HIGH VISIBILITY INFIELD TRACKER */}
-                        <div className="w-64 h-64 bg-zinc-900/50 rounded-full border-2 border-white/5 flex items-center justify-center relative shadow-[inset_0_0_50px_rgba(0,0,0,0.5)] group">
-                            <div className="relative w-44 h-44 border-4 border-zinc-800 rotate-45 flex items-center justify-center bg-black/60 shadow-2xl">
-                                {/* Bases */}
-                                <div className={`absolute -top-6 -right-6 w-12 h-12 -rotate-45 border-4 flex items-center justify-center transition-all duration-300 ${gameState.runners[1] ? 'bg-[#ffc629] border-white shadow-[0_0_40px_#ffc629] scale-125 z-10' : 'bg-zinc-950 border-zinc-800 opacity-60'}`}>
-                                    <span className="text-[10px] font-black text-black">2</span>
-                                </div>
-                                <div className={`absolute top-1/2 -left-6 -translate-y-1/2 w-12 h-12 -rotate-45 border-4 flex items-center justify-center transition-all duration-300 ${gameState.runners[2] ? 'bg-[#ffc629] border-white shadow-[0_0_40px_#ffc629] scale-125 z-10' : 'bg-zinc-950 border-zinc-800 opacity-60'}`}>
-                                    <span className="text-[10px] font-black text-black">3</span>
-                                </div>
-                                <div className={`absolute top-1/2 -right-6 -translate-y-1/2 w-12 h-12 -rotate-45 border-4 flex items-center justify-center transition-all duration-300 ${gameState.runners[0] ? 'bg-[#ffc629] border-white shadow-[0_0_40px_#ffc629] scale-125 z-10' : 'bg-zinc-950 border-zinc-800 opacity-60'}`}>
-                                    <span className="text-[10px] font-black text-black">1</span>
-                                </div>
-                                {/* Home Plate */}
-                                <div className="absolute -bottom-5 -left-5 w-10 h-10 -rotate-45 bg-[#ff5910]/40 rounded-sm border-2 border-white/10 flex items-center justify-center">
-                                    <div className="w-2 h-2 bg-white/40 rounded-full" />
-                                </div>
+                        <div className="pt-10 flex gap-6">
+                            <button 
+                                disabled={gameState.inning > GAME_LENGTH || !!overlay}
+                                onClick={playPlateAppearance}
+                                className="group relative px-12 py-7 bg-[#00aff0] hover:bg-[#009ee0] disabled:bg-zinc-900 disabled:text-zinc-700 rounded-2xl text-2xl font-black uppercase tracking-[0.2em] shadow-[0_10px_60px_rgba(0,175,240,0.3)] transition-all transform active:scale-95 hover:scale-105 ring-1 ring-white/30"
+                            >
+                                <span className="relative flex items-center gap-4 italic"><Play fill="currentColor" size={28}/> NEXT PITCH</span>
+                            </button>
+                            <div className="flex flex-col gap-3">
+                                <button 
+                                    disabled={gameState.inning > GAME_LENGTH || !!overlay}
+                                    onClick={simulateInning}
+                                    className="group px-8 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all transform active:scale-95 border border-white/10 flex items-center gap-3"
+                                >
+                                    <FastForward size={16}/> SIM INN
+                                </button>
+                                <button 
+                                    disabled={gameState.inning > GAME_LENGTH || !!overlay}
+                                    onClick={simulateFullGame}
+                                    className="group px-8 py-3 bg-white hover:bg-slate-200 text-black rounded-xl text-[10px] font-black uppercase tracking-widest transition-all transform active:scale-95 flex items-center gap-3 shadow-2xl"
+                                >
+                                    <SkipForward size={16}/> SIM GAME
+                                </button>
                             </div>
-                            <div className="absolute -bottom-4 bg-black/80 px-4 py-1 rounded-full border border-white/10 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">Infield Tracker</div>
                         </div>
                     </div>
 
-                    <div className="mt-12 flex gap-8 relative z-10">
-                        <button 
-                            disabled={gameState.inning > GAME_LENGTH || !!overlay}
-                            onClick={playPlateAppearance}
-                            className="group relative px-14 py-6 bg-[#00aff0] hover:bg-[#009ee0] disabled:bg-zinc-900 disabled:text-zinc-700 rounded-2xl text-2xl font-black uppercase tracking-[0.2em] shadow-[0_10px_60px_rgba(0,175,240,0.3)] transition-all transform active:scale-95 hover:scale-105"
-                        >
-                            <span className="relative flex items-center gap-4 italic"><Play fill="currentColor" size={28}/> NEXT PITCH</span>
-                        </button>
-                        <button 
-                            disabled={gameState.inning > GAME_LENGTH || !!overlay}
-                            onClick={simulateInning}
-                            className="group px-8 py-6 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all transform active:scale-95 border border-white/10"
-                        >
-                            <FastForward size={24} className="mb-1" /> END INN
-                        </button>
-                        <button 
-                            disabled={gameState.inning > GAME_LENGTH || !!overlay}
-                            onClick={simulateFullGame}
-                            className="group px-8 py-6 bg-white hover:bg-slate-200 text-black rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all transform active:scale-95 shadow-2xl"
-                        >
-                            <SkipForward size={24} className="mb-1" /> SIM GAME
-                        </button>
+                    {/* Right: GIANT INFIELD TRACKER */}
+                    <div className="w-[400px] h-[400px] bg-black/40 rounded-[2.5rem] border-2 border-white/5 flex items-center justify-center relative shadow-[inset_0_0_80px_rgba(0,0,0,0.8)] group ml-8 z-10 backdrop-blur-sm">
+                        <div className="relative w-64 h-64 border-8 border-zinc-900/50 rotate-45 flex items-center justify-center bg-black/40 shadow-2xl">
+                            {/* Bases */}
+                            <div className={`absolute -top-10 -right-10 w-20 h-20 -rotate-45 border-4 flex items-center justify-center transition-all duration-500 ${gameState.runners[1] ? 'bg-[#ffc629] border-white shadow-[0_0_50px_#ffc629] scale-110 z-10' : 'bg-zinc-950 border-zinc-800 opacity-40'}`}>
+                                <span className={`text-2xl font-black ${gameState.runners[1] ? 'text-black' : 'text-zinc-800'}`}>2</span>
+                            </div>
+                            <div className={`absolute top-1/2 -left-10 -translate-y-1/2 w-20 h-20 -rotate-45 border-4 flex items-center justify-center transition-all duration-500 ${gameState.runners[2] ? 'bg-[#ffc629] border-white shadow-[0_0_50px_#ffc629] scale-110 z-10' : 'bg-zinc-950 border-zinc-800 opacity-40'}`}>
+                                <span className={`text-2xl font-black ${gameState.runners[2] ? 'text-black' : 'text-zinc-800'}`}>3</span>
+                            </div>
+                            <div className={`absolute top-1/2 -right-10 -translate-y-1/2 w-20 h-20 -rotate-45 border-4 flex items-center justify-center transition-all duration-500 ${gameState.runners[0] ? 'bg-[#ffc629] border-white shadow-[0_0_50px_#ffc629] scale-110 z-10' : 'bg-zinc-950 border-zinc-800 opacity-40'}`}>
+                                <span className={`text-2xl font-black ${gameState.runners[0] ? 'text-black' : 'text-zinc-800'}`}>1</span>
+                            </div>
+                            {/* Home Plate */}
+                            <div className="absolute -bottom-6 -left-6 w-14 h-14 -rotate-45 bg-[#ff5910]/40 rounded-sm border-2 border-white/20 flex items-center justify-center shadow-[0_0_30px_rgba(255,89,16,0.2)]">
+                                <div className="w-4 h-4 bg-white/20 rounded-full" />
+                            </div>
+                        </div>
+                        <div className="absolute bottom-6 font-black text-xs uppercase tracking-[0.5em] text-zinc-700 group-hover:text-[#00aff0] transition-colors">Visual Diamond</div>
                     </div>
                 </div>
             </div>
 
             {/* Coverage Sidebar */}
-            <div className="col-span-12 lg:col-span-4 flex flex-col bg-[#080808] rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl relative">
+            <div className="col-span-12 lg:col-span-4 flex flex-col bg-[#080808] rounded-[3rem] border border-white/10 overflow-hidden shadow-2xl relative">
                 <div className="p-6 border-b border-white/5 bg-[#1a1a1a]/80 backdrop-blur-xl flex items-center justify-between">
                     <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-[#00aff0] flex items-center gap-3">
                         <div className="w-2.5 h-2.5 bg-red-600 rounded-full animate-pulse shadow-[0_0_12px_rgba(220,38,38,0.8)]" /> Live Coverage
@@ -317,7 +333,7 @@ const App: React.FC = () => {
                                 p-4 rounded-xl border leading-relaxed animate-in slide-in-from-top-4 duration-500 shadow-sm
                                 ${entry.type === 'META' ? 'bg-[#00aff0]/10 border-[#00aff0]/30 text-[#00aff0] font-black italic text-center text-xs py-5 my-4' : 
                                   entry.type === 'HIT' ? 'bg-green-900/10 border-green-500/20 text-green-400 text-sm' :
-                                  entry.type === 'WALK' ? 'bg-yellow-900/10 border-yellow-500/20 text-yellow-500 text-sm' :
+                                  entry.type === 'WALK' ? 'bg-yellow-900/10 border-yellow-500/10 text-yellow-500 text-sm' :
                                   'bg-zinc-900/30 border-white/5 text-zinc-500 text-sm opacity-90'}
                             `}
                         >
