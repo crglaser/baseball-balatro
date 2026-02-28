@@ -1,4 +1,4 @@
-import { type Player, type Result, type GameState } from './types.js';
+import { Player, Result, GameState } from './types.js';
 import { type AbilityContext } from './abilities.js';
 
 export class Engine {
@@ -59,7 +59,6 @@ export class Engine {
         ctx = ability.effect(ctx);
       });
       bonusRuns = ctx.flatBonus;
-      // Multiplier logic could be added here too
     }
 
     const oldScore = newState.score;
@@ -88,6 +87,13 @@ export class Engine {
 
     if (newState.score > oldScore) {
       newState.score += bonusRuns;
+    }
+
+    // Inning logic
+    if (newState.outs >= 3) {
+      newState.inning++;
+      newState.outs = 0;
+      newState.runners = [null, null, null];
     }
 
     newState.currentBatterIndex = (newState.currentBatterIndex + 1) % newState.lineup.batters.length;
