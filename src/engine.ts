@@ -3,7 +3,6 @@ import { type AbilityContext } from './abilities.js';
 
 export class Engine {
   static simulatePlateAppearance(player: Player): Result {
-    // Apply PRE_SWING abilities
     let tempPlayer = JSON.parse(JSON.stringify(player));
     let ctx: AbilityContext = {
       player: tempPlayer,
@@ -42,10 +41,10 @@ export class Engine {
   }
 
   static processResult(state: GameState, result: Result): GameState {
-    const newState = { ...state, runners: [...state.runners] };
-    const batter = state.lineup.batters[state.currentBatterIndex];
+    // Deep clone state to avoid any mutations
+    const nextState: GameState = JSON.parse(JSON.stringify(state));
+    const batter = nextState.lineup.batters[nextState.currentBatterIndex];
     
-    // Calculate bonus from POST_SWING abilities
     let bonusRuns = 0;
     if (batter) {
       let ctx: AbilityContext = {
@@ -61,43 +60,37 @@ export class Engine {
       bonusRuns = ctx.flatBonus;
     }
 
-    const oldScore = newState.score;
+    const oldScore = nextState.score;
 
     switch (result) {
       case 'WALK':
-        this.advanceRunners(newState, 1, true);
+        this.advanceRunners(nextState, 1, true);
         break;
       case 'SINGLE':
-        this.advanceRunners(newState, 1, false);
+        this.advanceRunners(nextState, 1, false);
         break;
       case 'DOUBLE':
-        this.advanceRunners(newState, 2, false);
+        this.advanceRunners(nextState, 2, false);
         break;
       case 'TRIPLE':
-        this.advanceRunners(newState, 3, false);
+        this.advanceRunners(nextState, 3, false);
         break;
       case 'HOME_RUN':
-        this.advanceRunners(newState, 4, false);
+        this.advanceRunners(nextState, 4, false);
         break;
       case 'OUT':
       case 'STRIKEOUT':
-        newState.outs++;
+        nextState.outs++;
         break;
     }
 
-    if (newState.score > oldScore) {
-      newState.score += bonusRuns;
+    if (nextState.score > oldScore) {
+      nextState.score += bonusRuns;
     }
 
-    // Inning logic
-    if (newState.outs >= 3) {
-      newState.inning++;
-      newState.outs = 0;
-      newState.runners = [null, null, null];
-    }
-
-    newState.currentBatterIndex = (newState.currentBatterIndex + 1) % newState.lineup.batters.length;
-    return newState;
+    nextState.currentBatterIndex = (nextState.currentBatterIndex + 1) % nextState.lineup.batters.length;
+    
+    return nextState;
   }
 
   private static advanceRunners(state: GameState, bases: number, isWalk: boolean) {

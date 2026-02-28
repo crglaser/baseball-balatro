@@ -42,6 +42,19 @@ const App: React.FC = () => {
     initializeGame();
   }, []);
 
+  const handleNextInning = () => {
+    setGameState(prev => {
+        if (!prev) return null;
+        return {
+            ...prev,
+            inning: prev.inning + 1,
+            outs: 0,
+            runners: [null, null, null]
+        };
+    });
+    setOverlay(null);
+  };
+
   const playPlateAppearance = () => {
     if (!gameState || overlay || gameState.inning > 3) return;
     
@@ -51,30 +64,27 @@ const App: React.FC = () => {
     const result = Engine.simulatePlateAppearance(batter);
     const nextState = Engine.processResult(gameState, result);
 
-    const eventLog = `${batter.name}: ${result}`;
-    const newLogs = [eventLog];
-    
-    if (nextState.inning > gameState.inning) {
-        newLogs.unshift(`--- End Inning ${gameState.inning} ---`);
-        if (nextState.inning > 3) {
+    setLog(prev => [`${batter.name}: ${result}`, ...prev]);
+
+    if (nextState.outs >= 3) {
+        setLog(prev => [`--- End Inning ${gameState.inning} ---`, ...prev]);
+        if (gameState.inning >= 3) {
             setOverlay('GAME_OVER');
         } else {
             setOverlay('NEXT_INNING');
         }
     }
-
-    setLog(prev => [...newLogs, ...prev]);
     setGameState(nextState);
   };
 
   const simulateInning = () => {
     if (!gameState || overlay || gameState.inning > 3) return;
     
-    let currentState = { ...gameState };
+    let currentState = JSON.parse(JSON.stringify(gameState));
     const startInning = currentState.inning;
     const newLogs: string[] = [];
     
-    while (currentState.inning === startInning) {
+    while (currentState.outs < 3) {
         const batter = currentState.lineup.batters[currentState.currentBatterIndex];
         if (!batter) break;
         const result = Engine.simulatePlateAppearance(batter);
@@ -84,7 +94,7 @@ const App: React.FC = () => {
     
     newLogs.unshift(`--- End Inning ${startInning} ---`);
     
-    if (currentState.inning > 3) {
+    if (startInning >= 3) {
         setOverlay('GAME_OVER');
     } else {
         setOverlay('NEXT_INNING');
@@ -142,17 +152,17 @@ const App: React.FC = () => {
                         <>
                             <div className="space-y-2">
                                 <h2 className="text-sm font-black text-slate-500 uppercase tracking-[0.3em]">End of Inning</h2>
-                                <div className="text-6xl font-black text-white italic">INNING {gameState.inning - 1}</div>
+                                <div className="text-6xl font-black text-white italic">INNING {gameState.inning}</div>
                             </div>
                             <div className="flex justify-center items-center gap-4 text-2xl font-bold bg-white/5 p-6 rounded-2xl border border-white/10">
                                 <span>Runs Scored</span>
                                 <span className="text-red-500 text-4xl">{gameState.score}</span>
                             </div>
                             <button 
-                                onClick={() => setOverlay(null)}
+                                onClick={handleNextInning}
                                 className="w-full flex items-center justify-center gap-3 py-6 bg-red-600 hover:bg-red-500 rounded-2xl text-2xl font-black uppercase tracking-widest transition transform active:scale-95 shadow-2xl"
                             >
-                                Continue <ChevronRight size={32} />
+                                Next Inning <ChevronRight size={32} />
                             </button>
                         </>
                     ) : (
