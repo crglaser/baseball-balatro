@@ -8,7 +8,7 @@ const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [log, setLog] = useState<string[]>([]);
   const [view, setView] = useState<'GAME' | 'SHOP'>('GAME');
-  const [overlay, setOverlay] = useState<'NEXT_INNING' | 'GAME_OVER' | null>(null);
+  const [overlay, setOverlay] = useState<'GAME_OVER' | null>(null);
 
   const initializeGame = () => {
     const bigBats = ABILITIES.BIG_BATS;
@@ -43,19 +43,6 @@ const App: React.FC = () => {
     initializeGame();
   }, []);
 
-  const handleNextInning = () => {
-    setGameState(prev => {
-        if (!prev) return null;
-        return {
-            ...prev,
-            inning: prev.inning + 1,
-            outs: 0,
-            runners: [null, null, null]
-        };
-    });
-    setOverlay(null);
-  };
-
   const playPlateAppearance = () => {
     if (!gameState || overlay || gameState.inning > 3) return;
     
@@ -63,18 +50,24 @@ const App: React.FC = () => {
     if (!batter) return;
 
     const result = Engine.simulatePlateAppearance(batter);
-    const nextState = Engine.processResult(gameState, result);
+    let nextState = Engine.processResult(gameState, result);
 
-    setLog(prev => [`${batter.name}: ${result}`, ...prev]);
-
+    const eventLog = `${batter.name}: ${result}`;
+    const newLogs = [eventLog];
+    
     if (nextState.outs >= 3) {
-        setLog(prev => [`--- End Inning ${gameState.inning} ---`, ...prev]);
+        newLogs.unshift(`--- End Inning ${gameState.inning} ---`);
         if (gameState.inning >= 3) {
             setOverlay('GAME_OVER');
         } else {
-            setOverlay('NEXT_INNING');
+            // Automatic Inning Flip
+            nextState.inning += 1;
+            nextState.outs = 0;
+            nextState.runners = [null, null, null];
         }
     }
+
+    setLog(prev => [...newLogs, ...prev]);
     setGameState(nextState);
   };
 
@@ -98,7 +91,10 @@ const App: React.FC = () => {
     if (startInning >= 3) {
         setOverlay('GAME_OVER');
     } else {
-        setOverlay('NEXT_INNING');
+        // Automatic Inning Flip
+        currentState.inning += 1;
+        currentState.outs = 0;
+        currentState.runners = [null, null, null];
     }
     
     setLog(prev => [...newLogs, ...prev]);
@@ -149,42 +145,21 @@ const App: React.FC = () => {
         {overlay && (
             <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#020617]/90 backdrop-blur-md animate-in fade-in duration-300 p-6 rounded-3xl">
                 <div className="text-center max-w-sm space-y-8 animate-in zoom-in-95 duration-500">
-                    {overlay === 'NEXT_INNING' ? (
-                        <>
-                            <div className="space-y-2">
-                                <h2 className="text-sm font-black text-slate-500 uppercase tracking-[0.3em]">End of Inning</h2>
-                                <div className="text-6xl font-black text-white italic">INNING {gameState.inning}</div>
-                            </div>
-                            <div className="flex justify-center items-center gap-4 text-2xl font-bold bg-white/5 p-6 rounded-2xl border border-white/10">
-                                <span>Runs Scored</span>
-                                <span className="text-red-500 text-4xl">{gameState.score}</span>
-                            </div>
-                            <button 
-                                onClick={handleNextInning}
-                                className="w-full flex items-center justify-center gap-3 py-6 bg-red-600 hover:bg-red-500 rounded-2xl text-2xl font-black uppercase tracking-widest transition transform active:scale-95 shadow-2xl"
-                            >
-                                Next Inning <ChevronRight size={32} />
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <div className="flex justify-center">
-                                <div className="p-6 bg-yellow-500/20 rounded-full border-2 border-yellow-500/50 shadow-[0_0_50px_rgba(234,179,8,0.2)]">
-                                    <Trophy size={80} className="text-yellow-500" />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <h2 className="text-sm font-black text-slate-500 uppercase tracking-[0.3em]">Season Result</h2>
-                                <div className="text-6xl font-black text-white">FINAL SCORE: {gameState.score}</div>
-                            </div>
-                            <button 
-                                onClick={initializeGame}
-                                className="w-full flex items-center justify-center gap-3 py-6 bg-white hover:bg-slate-200 text-[#020617] rounded-2xl text-2xl font-black uppercase tracking-widest transition transform active:scale-95 shadow-2xl"
-                            >
-                                <RotateCcw size={28} /> New Season
-                            </button>
-                        </>
-                    )}
+                    <div className="flex justify-center">
+                        <div className="p-6 bg-yellow-500/20 rounded-full border-2 border-yellow-500/50 shadow-[0_0_50px_rgba(234,179,8,0.2)]">
+                            <Trophy size={80} className="text-yellow-500" />
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <h2 className="text-sm font-black text-slate-500 uppercase tracking-[0.3em]">Season Result</h2>
+                        <div className="text-6xl font-black text-white">FINAL SCORE: {gameState.score}</div>
+                    </div>
+                    <button 
+                        onClick={initializeGame}
+                        className="w-full flex items-center justify-center gap-3 py-6 bg-white hover:bg-slate-200 text-[#020617] rounded-2xl text-2xl font-black uppercase tracking-widest transition transform active:scale-95 shadow-2xl"
+                    >
+                        <RotateCcw size={28} /> New Season
+                    </button>
                 </div>
             </div>
         )}
@@ -255,8 +230,8 @@ const App: React.FC = () => {
         </div>
 
         {/* Sidebar Log */}
-        <div className="col-span-12 lg:col-span-4 flex flex-col bg-slate-950/50 rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl mb-4">
-            <div className="p-5 border-b border-white/5 bg-[#1e293b]/30 backdrop-blur-md">
+        <div className="col-span-12 lg:col-span-4 flex flex-col bg-slate-950/50 rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl mb-4">
+            <div className="p-6 border-b border-white/5 bg-[#1e293b]/30 backdrop-blur-md">
                 <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 flex items-center gap-3">
                     <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]" /> 
                     Live Coverage
