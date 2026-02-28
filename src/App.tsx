@@ -8,27 +8,18 @@ const GAME_LENGTH = 9;
 
 /**
  * 2026 Projected Mets Lineup
- * Source: Fangraphs Roster Resource Depth Charts
- * Francisco Lindor (SS)
- * Brandon Nimmo (CF)
- * Mark Vientos (3B)
- * Pete Alonso (1B)
- * Starling Marte (RF)
- * Francisco Alvarez (C)
- * Jeff McNeil (2B)
- * Tyrone Taylor (LF)
- * Brett Baty (DH)
+ * Source: Fangraphs Roster Resource Depth Charts (2026 Projection)
  */
 const METS_2026_LINEUP: Player[] = [
-    { id: '596019', name: 'Francisco Lindor (SS)', stats: { contact: 85, power: 78, patience: 82, speed: 85 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/596019/headshot/67/current' },
-    { id: '607043', name: 'Brandon Nimmo (CF)', stats: { contact: 82, power: 65, patience: 98, speed: 75 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/607043/headshot/67/current' },
-    { id: '668901', name: 'Mark Vientos (3B)', stats: { contact: 75, power: 92, patience: 72, speed: 45 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/668901/headshot/67/current' },
-    { id: '624413', name: 'Pete Alonso (1B)', stats: { contact: 70, power: 98, patience: 78, speed: 35 }, abilities: [ABILITIES.BIG_BATS], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/624413/headshot/67/current' },
-    { id: '516782', name: 'Starling Marte (RF)', stats: { contact: 78, power: 58, patience: 65, speed: 88 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/516782/headshot/67/current' },
+    { id: '665742', name: 'Juan Soto (LF)', stats: { contact: 92, power: 98, patience: 99, speed: 60 }, abilities: [ABILITIES.BIG_BATS], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/665742/headshot/67/current' },
+    { id: '596019', name: 'Francisco Lindor (SS)', stats: { contact: 86, power: 75, patience: 82, speed: 85 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/596019/headshot/67/current' },
+    { id: '643667', name: 'Bo Bichette (DH)', stats: { contact: 90, power: 70, patience: 65, speed: 75 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/643667/headshot/67/current' },
+    { id: '624413', name: 'Pete Alonso (1B)', stats: { contact: 68, power: 99, patience: 78, speed: 35 }, abilities: [ABILITIES.BIG_BATS], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/624413/headshot/67/current' },
+    { id: '668901', name: 'Mark Vientos (3B)', stats: { contact: 75, power: 90, patience: 70, speed: 45 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/668901/headshot/67/current' },
+    { id: '543760', name: 'Marcus Semien (2B)', stats: { contact: 80, power: 75, patience: 80, speed: 70 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/543760/headshot/67/current' },
+    { id: '607043', name: 'Brandon Nimmo (RF)', stats: { contact: 84, power: 65, patience: 98, speed: 70 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/607043/headshot/67/current' },
     { id: '682626', name: 'Francisco Alvarez (C)', stats: { contact: 68, power: 94, patience: 75, speed: 40 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/682626/headshot/67/current' },
-    { id: '643446', name: 'Jeff McNeil (2B)', stats: { contact: 92, power: 42, patience: 78, speed: 55 }, abilities: [ABILITIES.CRUTCH], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/643446/headshot/67/current' },
-    { id: '621438', name: 'Tyrone Taylor (LF)', stats: { contact: 76, power: 72, patience: 68, speed: 82 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/621438/headshot/67/current' },
-    { id: '683146', name: 'Brett Baty (DH)', stats: { contact: 74, power: 78, patience: 75, speed: 50 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/683146/headshot/67/current' },
+    { id: '694836', name: 'Drew Gilbert (CF)', stats: { contact: 78, power: 72, patience: 82, speed: 88 }, abilities: [], imageUrl: 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/694836/headshot/67/current' },
 ];
 
 const App: React.FC = () => {
@@ -47,7 +38,7 @@ const App: React.FC = () => {
       runners: [null, null, null],
       currentBatterIndex: 0,
     });
-    setLog([{msg: '🏟️ Welcome to Citi Field! 2026 Season starts now.', type: 'META'}]);
+    setLog([{msg: '🏟️ Welcome to Citi Field! Opening Day 2026 is here.', type: 'META'}]);
     setOverlay(null);
   };
 
@@ -94,7 +85,7 @@ const App: React.FC = () => {
     const newLogs: {msg: string, type: any}[] = [{msg, type: getLogType(result)}];
     
     if (nextState.outs >= 3) {
-        newLogs.unshift({msg: `🏁 End Inning ${gameState.inning}. Mets Score: ${nextState.score}`, type: 'META'});
+        newLogs.unshift({msg: `🏁 End Inning ${gameState.inning}. Score: ${nextState.score}`, type: 'META'});
         if (gameState.inning >= GAME_LENGTH) {
             setOverlay('GAME_OVER');
         } else {
@@ -172,7 +163,7 @@ const App: React.FC = () => {
     setGameState(currentState);
   };
 
-  if (!gameState) return <div className="p-8 text-white font-mono">Opening stadium gates...</div>;
+  if (!gameState) return <div className="p-8 text-white font-mono">Loading stadium...</div>;
 
   return (
     <div className="min-h-screen bg-[#050505] text-slate-100 font-sans selection:bg-blue-500/30 flex flex-col items-center overflow-x-hidden">
@@ -232,7 +223,7 @@ const App: React.FC = () => {
                         {isUp && <div className="absolute inset-0 border-4 border-blue-400/20 pointer-events-none animate-pulse rounded-2xl" />}
                         <div className={`text-[9px] font-black absolute top-2 left-3 z-20 ${isUp ? 'text-blue-400' : 'text-zinc-600'}`}>#{i+1}</div>
                         <div className={`w-full aspect-square bg-black/20 rounded-xl overflow-hidden flex items-center justify-center p-1 relative transition-transform duration-700 ${isUp ? 'scale-110' : ''}`}>
-                            <img src={p.imageUrl} className={`w-full h-full object-cover transition-transform duration-500 ${isUp ? 'scale-110' : ''}`} alt={p.name} />
+                            <img src={p.imageUrl} className={`w-full h-full object-contain transition-transform duration-500 ${isUp ? 'scale-110' : ''}`} alt={p.name} />
                         </div>
                         <div className="text-center w-full min-w-0 z-20">
                             <div className={`font-black truncate text-[9px] uppercase tracking-tighter ${isUp ? 'text-white' : 'text-zinc-500'}`}>{p.name.split(' (')[0]}</div>
@@ -258,12 +249,12 @@ const App: React.FC = () => {
                         
                         <div className="flex gap-12 font-mono">
                                 <div className="text-left space-y-1">
-                                    <div className="text-[11px] font-black text-zinc-500 uppercase tracking-widest">Contact Rating</div>
+                                    <div className="text-[11px] font-black text-zinc-500 uppercase tracking-widest">Contact</div>
                                     <div className="text-6xl font-black text-blue-400 tabular-nums">{gameState.lineup.batters[gameState.currentBatterIndex]?.stats.contact}</div>
                                 </div>
                                 <div className="w-px bg-white/5 h-16 self-end" />
                                 <div className="text-left space-y-1">
-                                    <div className="text-[11px] font-black text-zinc-500 uppercase tracking-widest">Power Potential</div>
+                                    <div className="text-[11px] font-black text-zinc-500 uppercase tracking-widest">Power</div>
                                     <div className="text-6xl font-black text-orange-500 tabular-nums">{gameState.lineup.batters[gameState.currentBatterIndex]?.stats.power}</div>
                                 </div>
                         </div>
@@ -296,21 +287,21 @@ const App: React.FC = () => {
                     </div>
 
                     {/* Right: GIANT INFIELD TRACKER */}
-                    <div className="w-[400px] h-[400px] bg-black/40 rounded-[2.5rem] border-2 border-white/5 flex items-center justify-center relative shadow-[inset_0_0_80px_rgba(0,0,0,0.8)] group ml-8 z-10 backdrop-blur-sm">
-                        <div className="relative w-64 h-64 border-8 border-zinc-900/50 rotate-45 flex items-center justify-center bg-black/40 shadow-2xl">
+                    <div className="w-[450px] h-[450px] bg-black/40 rounded-[2.5rem] border-2 border-white/5 flex items-center justify-center relative shadow-[inset_0_0_100px_rgba(0,0,0,0.9)] group ml-8 z-10 backdrop-blur-sm">
+                        <div className="relative w-72 h-72 border-[12px] border-zinc-900 rotate-45 flex items-center justify-center bg-black/60 shadow-2xl">
                             {/* Bases */}
-                            <div className={`absolute -top-10 -right-10 w-20 h-20 -rotate-45 border-4 flex items-center justify-center transition-all duration-500 ${gameState.runners[1] ? 'bg-[#ffc629] border-white shadow-[0_0_50px_#ffc629] scale-110 z-10' : 'bg-zinc-950 border-zinc-800 opacity-40'}`}>
-                                <span className={`text-2xl font-black ${gameState.runners[1] ? 'text-black' : 'text-zinc-800'}`}>2</span>
+                            <div className={`absolute -top-12 -right-12 w-24 h-24 -rotate-45 border-4 flex items-center justify-center transition-all duration-500 shadow-2xl ${gameState.runners[1] ? 'bg-[#ffc629] border-white shadow-[0_0_60px_#ffc629] scale-110 z-10' : 'bg-zinc-950 border-zinc-800 opacity-40'}`}>
+                                <span className={`text-4xl font-black ${gameState.runners[1] ? 'text-black' : 'text-zinc-800'}`}>2</span>
                             </div>
-                            <div className={`absolute top-1/2 -left-10 -translate-y-1/2 w-20 h-20 -rotate-45 border-4 flex items-center justify-center transition-all duration-500 ${gameState.runners[2] ? 'bg-[#ffc629] border-white shadow-[0_0_50px_#ffc629] scale-110 z-10' : 'bg-zinc-950 border-zinc-800 opacity-40'}`}>
-                                <span className={`text-2xl font-black ${gameState.runners[2] ? 'text-black' : 'text-zinc-800'}`}>3</span>
+                            <div className={`absolute top-1/2 -left-12 -translate-y-1/2 w-24 h-24 -rotate-45 border-4 flex items-center justify-center transition-all duration-500 shadow-2xl ${gameState.runners[2] ? 'bg-[#ffc629] border-white shadow-[0_0_60px_#ffc629] scale-110 z-10' : 'bg-zinc-950 border-zinc-800 opacity-40'}`}>
+                                <span className={`text-4xl font-black ${gameState.runners[2] ? 'text-black' : 'text-zinc-800'}`}>3</span>
                             </div>
-                            <div className={`absolute top-1/2 -right-10 -translate-y-1/2 w-20 h-20 -rotate-45 border-4 flex items-center justify-center transition-all duration-500 ${gameState.runners[0] ? 'bg-[#ffc629] border-white shadow-[0_0_50px_#ffc629] scale-110 z-10' : 'bg-zinc-950 border-zinc-800 opacity-40'}`}>
-                                <span className={`text-2xl font-black ${gameState.runners[0] ? 'text-black' : 'text-zinc-800'}`}>1</span>
+                            <div className={`absolute top-1/2 -right-12 -translate-y-1/2 w-24 h-24 -rotate-45 border-4 flex items-center justify-center transition-all duration-500 shadow-2xl ${gameState.runners[0] ? 'bg-[#ffc629] border-white shadow-[0_0_60px_#ffc629] scale-110 z-10' : 'bg-zinc-950 border-zinc-800 opacity-40'}`}>
+                                <span className={`text-4xl font-black ${gameState.runners[0] ? 'text-black' : 'text-zinc-800'}`}>1</span>
                             </div>
                             {/* Home Plate */}
-                            <div className="absolute -bottom-6 -left-6 w-14 h-14 -rotate-45 bg-[#ff5910]/40 rounded-sm border-2 border-white/20 flex items-center justify-center shadow-[0_0_30px_rgba(255,89,16,0.2)]">
-                                <div className="w-4 h-4 bg-white/20 rounded-full" />
+                            <div className="absolute -bottom-8 -left-8 w-16 h-16 -rotate-45 bg-[#ff5910]/40 rounded-sm border-2 border-white/10 flex items-center justify-center shadow-[0_0_40px_rgba(255,89,16,0.3)]">
+                                <div className="w-4 h-4 bg-white/40 rounded-full" />
                             </div>
                         </div>
                         <div className="absolute bottom-6 font-black text-xs uppercase tracking-[0.5em] text-zinc-700 group-hover:text-[#00aff0] transition-colors">Visual Diamond</div>
@@ -333,7 +324,7 @@ const App: React.FC = () => {
                                 p-4 rounded-xl border leading-relaxed animate-in slide-in-from-top-4 duration-500 shadow-sm
                                 ${entry.type === 'META' ? 'bg-[#00aff0]/10 border-[#00aff0]/30 text-[#00aff0] font-black italic text-center text-xs py-5 my-4' : 
                                   entry.type === 'HIT' ? 'bg-green-900/10 border-green-500/20 text-green-400 text-sm' :
-                                  entry.type === 'WALK' ? 'bg-yellow-900/10 border-yellow-500/10 text-yellow-500 text-sm' :
+                                  entry.type === 'WALK' ? 'bg-yellow-900/10 border-yellow-500/20 text-yellow-500 text-sm' :
                                   'bg-zinc-900/30 border-white/5 text-zinc-500 text-sm opacity-90'}
                             `}
                         >
