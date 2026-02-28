@@ -56,6 +56,32 @@ const App: React.FC = () => {
       return 'OUT';
   };
 
+  const generateNarrative = (batter: Player, result: Result, prevState: GameState, nextState: GameState) => {
+    let msg = "";
+    const runsScored = nextState.score - prevState.score;
+    
+    // Outcome description
+    if (result === 'HOME_RUN') msg = `🚀 ${batter.name} CRUSHES A HOME RUN!`;
+    else if (result === 'WALK') msg = `🚶 ${batter.name} draws a walk.`;
+    else if (result === 'STRIKEOUT') msg = `🚫 ${batter.name} strikes out looking.`;
+    else if (result === 'OUT') msg = `⚾ ${batter.name} flies out to center.`;
+    else msg = `🔥 ${batter.name} rips a ${result.toLowerCase()}.`;
+
+    // Scoring info
+    if (runsScored > 0) {
+        msg += ` ${runsScored} run${runsScored > 1 ? 's' : ''} score${runsScored === 1 ? 's' : ''}!`;
+    }
+
+    // Base state info
+    const runnersOn = nextState.runners.filter(r => r !== null).length;
+    if (nextState.outs < 3) {
+        if (runnersOn === 3) msg += " The bases are loaded!";
+        else if (runnersOn === 0 && runsScored === 0) msg += " The bases are empty.";
+    }
+
+    return msg;
+  };
+
   const playPlateAppearance = () => {
     if (!gameState || overlay || gameState.inning > GAME_LENGTH) return;
     
@@ -65,11 +91,11 @@ const App: React.FC = () => {
     const result = Engine.simulatePlateAppearance(batter);
     let nextState = Engine.processResult(gameState, result);
 
-    const msg = `${batter.name} ${result === 'HOME_RUN' ? 'CRUSHES A HOME RUN!' : result === 'STRIKEOUT' ? 'strikes out looking.' : `hits a ${result.toLowerCase()}.`}`;
+    const msg = generateNarrative(batter, result, gameState, nextState);
     const newLogs: {msg: string, type: any}[] = [{msg, type: getLogType(result)}];
     
     if (nextState.outs >= 3) {
-        newLogs.push({msg: `🏁 End Inning ${gameState.inning}. Total Score: ${nextState.score}`, type: 'META'});
+        newLogs.push({msg: `🏁 End Inning ${gameState.inning}. Score: ${nextState.score}`, type: 'META'});
         if (gameState.inning >= GAME_LENGTH) {
             setOverlay('GAME_OVER');
         } else {
@@ -93,9 +119,10 @@ const App: React.FC = () => {
     while (currentState.outs < 3) {
         const batter = currentState.lineup.batters[currentState.currentBatterIndex];
         if (!batter) break;
+        const prevState = JSON.parse(JSON.stringify(currentState));
         const result = Engine.simulatePlateAppearance(batter);
         currentState = Engine.processResult(currentState, result);
-        const msg = `${batter.name}: ${result}`;
+        const msg = generateNarrative(batter, result, prevState, currentState);
         newLogs.push({msg, type: getLogType(result)});
     }
     
@@ -124,9 +151,10 @@ const App: React.FC = () => {
         while (currentState.outs < 3) {
             const batter = currentState.lineup.batters[currentState.currentBatterIndex];
             if (!batter) break;
+            const prevState = JSON.parse(JSON.stringify(currentState));
             const result = Engine.simulatePlateAppearance(batter);
             currentState = Engine.processResult(currentState, result);
-            newLogs.push({msg: `${batter.name}: ${result}`, type: getLogType(result)});
+            newLogs.push({msg: generateNarrative(batter, result, prevState, currentState), type: getLogType(result)});
         }
         newLogs.push({msg: `🏁 End Inning ${startInning} --- Score: ${currentState.score}`, type: 'META'});
         
@@ -135,7 +163,7 @@ const App: React.FC = () => {
             currentState.outs = 0;
             currentState.runners = [null, null, null];
         } else {
-            break; // Finished 9th
+            break;
         }
     }
     
@@ -149,7 +177,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#050505] text-slate-100 font-sans selection:bg-blue-500/30 flex flex-col items-center">
       
-      {/* SNY Style Scorebug */}
+      {/* SNY Style Scorebug - Simplified (No Diamond) */}
       <div className="mt-6 flex bg-[#0a0a0a] border-b-4 border-[#00aff0] rounded-b-lg shadow-[0_15px_40px_rgba(0,0,0,0.6)] overflow-hidden font-mono h-20 items-stretch ring-1 ring-white/10 z-50">
           <div className="bg-[#111] px-8 flex items-center justify-center border-r-2 border-zinc-800">
               <span className="text-[#00aff0] font-black text-4xl italic tracking-tighter drop-shadow-[0_0_10px_rgba(0,175,240,0.5)]">SNY</span>
@@ -160,7 +188,7 @@ const App: React.FC = () => {
                 <div className="w-6 h-6 bg-[#ff5910] rounded-sm shadow-inner ring-1 ring-white/10" />
                 <span className="font-black text-2xl tracking-tighter text-white">METS</span>
               </div>
-              <span className="text-5xl font-black ml-auto text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">{gameState.score}</span>
+              <span className="text-5xl font-black ml-auto text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)] text-right min-w-[60px]">{gameState.score}</span>
           </div>
 
           <div className="flex bg-[#111] px-8 items-center gap-6 border-r-2 border-zinc-800 min-w-[200px]">
@@ -176,17 +204,6 @@ const App: React.FC = () => {
               <span className="text-[11px] text-zinc-500 font-black uppercase leading-none tracking-widest">INN</span>
           </div>
 
-          {/* Diamond Tracker */}
-          <div className="bg-[#050505] px-12 flex items-center justify-center border-r-2 border-zinc-800">
-              <div className="relative w-12 h-12 border-2 border-zinc-800 rotate-45 flex items-center justify-center bg-black/40 shadow-inner">
-                  <div className={`absolute -top-3 -right-3 w-5 h-5 -rotate-45 border-2 transition-all duration-300 ${gameState.runners[1] ? 'bg-[#ffc629] border-white shadow-[0_0_20px_#ffc629] scale-125 z-10' : 'bg-zinc-900 border-zinc-800'}`} title="2nd Base" />
-                  <div className={`absolute top-1/2 -left-3 -translate-y-1/2 w-5 h-5 -rotate-45 border-2 transition-all duration-300 ${gameState.runners[2] ? 'bg-[#ffc629] border-white shadow-[0_0_20px_#ffc629] scale-125 z-10' : 'bg-zinc-900 border-zinc-800'}`} title="3rd Base" />
-                  <div className={`absolute top-1/2 -right-3 -translate-y-1/2 w-5 h-5 -rotate-45 border-2 transition-all duration-300 ${gameState.runners[0] ? 'bg-[#ffc629] border-white shadow-[0_0_20px_#ffc629] scale-125 z-10' : 'bg-zinc-900 border-zinc-800'}`} title="1st Base" />
-                  <div className="absolute -bottom-2 -left-2 w-4 h-4 -rotate-45 bg-[#ff5910]/20 rounded-full border border-white/5" />
-              </div>
-          </div>
-
-          {/* Outs */}
           <div className="flex bg-[#050505] px-8 items-center gap-4 border-r-2 border-zinc-800 min-w-[140px]">
               <span className="text-[12px] font-black text-zinc-500 uppercase tracking-widest">Outs</span>
               <div className="flex gap-3">
@@ -202,47 +219,52 @@ const App: React.FC = () => {
           </div>
       </div>
 
-      <div className="max-w-[1400px] w-full grid grid-cols-12 gap-8 flex-1 overflow-hidden p-8">
+      <div className="max-w-[1600px] w-full grid grid-cols-12 gap-8 flex-1 overflow-hidden p-8">
         
-        {/* Play Area */}
         <div className="col-span-12 lg:col-span-9 flex flex-col gap-8">
             
-            {/* Lineup Card Row */}
-            <div className="bg-[#0f172a]/10 rounded-3xl border border-white/5 p-8 flex justify-between items-center gap-4 shadow-inner relative">
-                {gameState.lineup.batters.map((p, i) => {
-                    const isUp = i === gameState.currentBatterIndex;
-                    return (
-                        <div 
-                            key={p.id}
-                            className={`
-                                relative flex-1 min-w-0 transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1)
-                                h-52 bg-gradient-to-br rounded-2xl border-2 flex flex-col items-center justify-between p-4 overflow-hidden
-                                ${isUp ? 'from-blue-600/10 to-blue-900/20 border-blue-500 shadow-[0_0_30px_rgba(37,99,235,0.2)]' : 'from-zinc-900/50 to-zinc-950 border-zinc-800 opacity-30 grayscale-[0.5]'}
-                            `}
-                        >
-                            {/* Internal Highlight instead of external ring */}
-                            {isUp && <div className="absolute inset-0 border-4 border-blue-400/20 pointer-events-none animate-pulse rounded-2xl" />}
-                            
-                            <div className={`text-[9px] font-black absolute top-2 left-3 z-20 ${isUp ? 'text-blue-400' : 'text-zinc-600'}`}>#{i+1}</div>
-                            <div className={`w-full aspect-square bg-black/40 rounded-xl overflow-hidden flex items-center justify-center p-2 relative transition-transform duration-700 ${isUp ? 'scale-110' : ''}`}>
-                                <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i + 25}.png`} className={`w-full h-full object-contain pixelated`} alt={p.name} />
+            {/* Lineup Row + Diamond Element */}
+            <div className="flex gap-4 items-stretch">
+                {/* Lineup Cards */}
+                <div className="flex-1 bg-[#0f172a]/20 rounded-3xl border border-white/5 p-8 flex justify-between items-center gap-4 shadow-inner relative">
+                    {gameState.lineup.batters.map((p, i) => {
+                        const isUp = i === gameState.currentBatterIndex;
+                        return (
+                            <div 
+                                key={p.id}
+                                className={`
+                                    relative flex-1 min-w-0 transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1)
+                                    h-52 bg-gradient-to-br rounded-2xl border-2 flex flex-col items-center justify-between p-4 overflow-hidden
+                                    ${isUp ? 'from-blue-600/10 to-blue-900/20 border-blue-500 shadow-[0_0_30px_rgba(37,99,235,0.2)]' : 'from-zinc-900/50 to-zinc-950 border-zinc-800 opacity-30 grayscale-[0.5]'}
+                                `}
+                            >
+                                {isUp && <div className="absolute inset-0 border-4 border-blue-400/20 pointer-events-none animate-pulse rounded-2xl" />}
+                                <div className={`text-[9px] font-black absolute top-2 left-3 z-20 ${isUp ? 'text-blue-400' : 'text-zinc-600'}`}>#{i+1}</div>
+                                <div className={`w-full aspect-square bg-black/40 rounded-xl overflow-hidden flex items-center justify-center p-2 relative transition-transform duration-700 ${isUp ? 'scale-110' : ''}`}>
+                                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i + 25}.png`} className={`w-full h-full object-contain pixelated`} alt={p.name} />
+                                </div>
+                                <div className="text-center w-full min-w-0 z-20">
+                                    <div className={`font-black truncate text-[10px] uppercase tracking-tighter ${isUp ? 'text-white' : 'text-zinc-500'}`}>{p.name}</div>
+                                </div>
                             </div>
-                            <div className="text-center w-full min-w-0 z-20">
-                                <div className={`font-black truncate text-[10px] uppercase tracking-tighter ${isUp ? 'text-white' : 'text-zinc-500'}`}>{p.name}</div>
-                                {isUp && (
-                                    <div className="flex gap-1.5 mt-2 justify-center font-mono">
-                                        <div className="bg-blue-600/30 px-1.5 py-0.5 rounded border border-blue-500/20">
-                                            <span className="text-[9px] font-black text-blue-400">{p.stats.contact}</span>
-                                        </div>
-                                        <div className="bg-orange-600/30 px-1.5 py-0.5 rounded border border-orange-500/20">
-                                            <span className="text-[9px] font-black text-orange-400">{p.stats.power}</span>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
+                        )
+                    })}
+                </div>
+
+                {/* Standalone Visual Diamond Element */}
+                <div className="w-52 bg-[#0f172a]/40 rounded-3xl border-2 border-white/10 flex items-center justify-center relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                    <div className="relative w-28 h-28 border-4 border-zinc-800 rotate-45 flex items-center justify-center bg-black/60 shadow-2xl">
+                        {/* Bases - Each base is a visual diamond */}
+                        <div className={`absolute -top-4 -right-4 w-7 h-7 -rotate-45 border-4 transition-all duration-500 ${gameState.runners[1] ? 'bg-[#ffc629] border-white shadow-[0_0_25px_#ffc629] scale-125 z-10' : 'bg-zinc-900 border-zinc-800'}`} title="2nd Base" />
+                        <div className={`absolute top-1/2 -left-4 -translate-y-1/2 w-7 h-7 -rotate-45 border-4 transition-all duration-500 ${gameState.runners[2] ? 'bg-[#ffc629] border-white shadow-[0_0_25px_#ffc629] scale-125 z-10' : 'bg-zinc-900 border-zinc-800'}`} title="3rd Base" />
+                        <div className={`absolute top-1/2 -right-4 -translate-y-1/2 w-7 h-7 -rotate-45 border-4 transition-all duration-500 ${gameState.runners[0] ? 'bg-[#ffc629] border-white shadow-[0_0_25px_#ffc629] scale-125 z-10' : 'bg-zinc-900 border-zinc-800'}`} title="1st Base" />
+                        {/* Home Plate */}
+                        <div className="absolute -bottom-3 -left-3 w-6 h-6 -rotate-45 bg-[#ff5910]/40 rounded-sm border-2 border-white/20 flex items-center justify-center">
+                            <div className="w-1 h-1 bg-white/20 rounded-full" />
                         </div>
-                    )
-                })}
+                    </div>
+                </div>
             </div>
 
             {/* Main Stage */}
@@ -282,7 +304,7 @@ const App: React.FC = () => {
                         onClick={simulateInning}
                         className="group px-10 py-8 bg-zinc-800/80 hover:bg-zinc-700 disabled:bg-zinc-950 disabled:text-zinc-800 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all transform active:scale-95 flex items-center gap-4 border border-white/10 backdrop-blur-sm"
                     >
-                        <FastForward size={24}/> END INNING
+                        <FastForward size={24}/> FAST FORWARD INNING
                     </button>
 
                     <button 
@@ -311,8 +333,8 @@ const App: React.FC = () => {
                         className={`
                             p-4 rounded-xl border leading-relaxed animate-in slide-in-from-right-8 duration-500 shadow-sm
                             ${entry.type === 'META' ? 'bg-[#00aff0]/10 border-[#00aff0]/30 text-[#00aff0] font-black italic text-center text-xs py-5 my-4' : 
-                              entry.type === 'HIT' ? 'bg-green-500/10 border-green-500/20 text-green-400 text-sm' :
-                              entry.type === 'WALK' ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500 text-sm' :
+                              entry.type === 'HIT' ? 'bg-green-900/10 border-green-500/20 text-green-400 text-sm' :
+                              entry.type === 'WALK' ? 'bg-yellow-900/10 border-yellow-500/10 text-yellow-400 text-sm' :
                               'bg-zinc-900/30 border-white/5 text-zinc-500 text-sm opacity-90'}
                         `}
                     >
