@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { type GameState, type Player, type Result } from './types.js';
+import { type GameState, type Player } from './types.js';
 import { Engine } from './engine.js';
 import { ABILITIES } from './abilities.js';
-import { Shop } from './shop.js';
-import { Play, RotateCcw, ShoppingCart, Users } from 'lucide-react';
+import { ShoppingCart, LayoutPanelLeft, Play, RotateCcw } from 'lucide-react';
 
 const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState | null>(null);
@@ -15,15 +14,15 @@ const App: React.FC = () => {
     const crutch = ABILITIES.CRUTCH;
     
     const initialPlayers: Player[] = [
-      { id: '1', name: 'Speedy Gonzalez', stats: { contact: 80, power: 20, patience: 50, speed: 90 }, abilities: [] },
-      { id: '2', name: 'Slugger Sam', stats: { contact: 40, power: 90, patience: 30, speed: 20 }, abilities: bigBats ? [bigBats] : [] },
-      { id: '3', name: 'Steady Eddie', stats: { contact: 70, power: 50, patience: 80, speed: 50 }, abilities: crutch ? [crutch] : [] },
+      { id: '1', name: 'Speedy Gonzalez', stats: { contact: 80, power: 20, patience: 50, speed: 90 }, abilities: [], imageUrl: 'https://www.mlbstatic.com/team-logos/league-on-dark/1.svg' },
+      { id: '2', name: 'Slugger Sam', stats: { contact: 40, power: 90, patience: 30, speed: 20 }, abilities: bigBats ? [bigBats] : [], imageUrl: 'https://www.mlbstatic.com/team-logos/league-on-dark/1.svg' },
+      { id: '3', name: 'Steady Eddie', stats: { contact: 70, power: 50, patience: 80, speed: 50 }, abilities: crutch ? [crutch] : [], imageUrl: 'https://www.mlbstatic.com/team-logos/league-on-dark/1.svg' },
     ];
 
     let lineupBatters: Player[] = [];
     for (let i = 0; i < 9; i++) {
       const p = initialPlayers[i % initialPlayers.length];
-      if (p) lineupBatters.push({ ...p });
+      if (p) lineupBatters.push({ ...p, id: `p-${i}` });
     }
 
     setGameState({
@@ -50,16 +49,12 @@ const App: React.FC = () => {
     const result = Engine.simulatePlateAppearance(batter);
     const nextState = Engine.processResult(gameState, result);
 
-    setLog(prev => [`Inning ${gameState.inning}, Outs ${gameState.outs} | ${batter.name}: ${result}`, ...prev]);
+    setLog(prev => [`${batter.name}: ${result}`, ...prev]);
 
     if (nextState.outs >= 3) {
-      setLog(prev => [`--- End of Inning ${nextState.inning - 1} ---`, ...prev]);
+      setLog(prev => [`End Inning ${nextState.inning - 1}`, ...prev]);
       nextState.outs = 0;
       nextState.runners = [null, null, null];
-      
-      if (nextState.inning > 3) {
-        setLog(prev => [`--- GAME OVER. Final Score: ${nextState.score} ---`, ...prev]);
-      }
     }
 
     setGameState(nextState);
@@ -67,134 +62,127 @@ const App: React.FC = () => {
 
   if (!gameState) return <div className="p-8">Loading...</div>;
 
+  const currentBatter = gameState.lineup.batters[gameState.currentBatterIndex];
+
   return (
-    <div className="min-h-screen bg-zinc-900 text-white p-4 font-mono">
-      <header className="flex justify-between items-center mb-8 border-b border-zinc-700 pb-4">
-        <h1 className="text-2xl font-bold text-red-500">BASEBALL BALATRO</h1>
-        <div className="flex gap-4">
-          <button 
-            onClick={() => setView('GAME')}
-            className={`flex items-center gap-2 px-4 py-2 rounded ${view === 'GAME' ? 'bg-red-600' : 'bg-zinc-800'}`}
-          >
-            <Play size={18} /> Field
-          </button>
-          <button 
-            onClick={() => setView('SHOP')}
-            className={`flex items-center gap-2 px-4 py-2 rounded ${view === 'SHOP' ? 'bg-red-600' : 'bg-zinc-800'}`}
-          >
-            <ShoppingCart size={18} /> Front Office
-          </button>
+    <div className="min-h-screen bg-[#0f172a] text-white p-4 font-sans selection:bg-red-500/30">
+      {/* Top Bar / Scorebug */}
+      <div className="max-w-6xl mx-auto flex justify-between items-center bg-[#1e293b] p-4 rounded-2xl border border-white/10 shadow-2xl mb-8">
+        <div className="flex items-center gap-6">
+            <div className="flex flex-col">
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Score</span>
+                <span className="text-3xl font-black text-red-500 leading-none">{gameState.score}</span>
+            </div>
+            <div className="h-8 w-px bg-white/10" />
+            <div className="flex flex-col">
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Inning</span>
+                <span className="text-xl font-bold leading-none">▲{gameState.inning}</span>
+            </div>
+            <div className="h-8 w-px bg-white/10" />
+            <div className="flex flex-col">
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Outs</span>
+                <div className="flex gap-1.5 mt-1">
+                    {[...Array(3)].map((_, i) => (
+                        <div key={i} className={`w-3 h-3 rounded-full border border-white/20 ${i < gameState.outs ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'bg-slate-900'}`} />
+                    ))}
+                </div>
+            </div>
+            <div className="h-8 w-px bg-white/10" />
+            <div className="relative w-12 h-12 bg-slate-900 rounded rotate-45 border border-white/5 flex items-center justify-center">
+                <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-sm border border-white/20 -rotate-45 transition-colors ${gameState.runners[1] ? 'bg-yellow-400' : 'bg-slate-800'}`} title="2nd Base" />
+                <div className={`absolute top-1/2 -left-1 -translate-y-1/2 w-4 h-4 rounded-sm border border-white/20 -rotate-45 transition-colors ${gameState.runners[2] ? 'bg-yellow-400' : 'bg-slate-800'}`} title="3rd Base" />
+                <div className={`absolute top-1/2 -right-1 -translate-y-1/2 w-4 h-4 rounded-sm border border-white/20 -rotate-45 transition-colors ${gameState.runners[0] ? 'bg-yellow-400' : 'bg-slate-800'}`} title="1st Base" />
+            </div>
         </div>
-      </header>
-
-      <main className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Left: Scoreboard & Status */}
-        <div className="md:col-span-1 space-y-6">
-          <div className="bg-zinc-800 p-6 rounded-lg border-2 border-zinc-700 shadow-xl">
-            <h2 className="text-zinc-400 text-sm mb-2 uppercase tracking-widest">Scoreboard</h2>
-            <div className="text-5xl font-black mb-4">{gameState.score}</div>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-zinc-500">INNING</span>
-                <div className="text-xl">{gameState.inning}</div>
-              </div>
-              <div>
-                <span className="text-zinc-500">OUTS</span>
-                <div className="text-xl">{'●'.repeat(gameState.outs)}{'○'.repeat(3-gameState.outs)}</div>
-              </div>
-            </div>
-            <div className="mt-6 flex gap-2">
-              <div className={`w-4 h-4 rounded-sm rotate-45 border ${gameState.runners[1] ? 'bg-yellow-400' : 'bg-zinc-900'}`} title="2nd Base" />
-              <div className="flex gap-4 -mt-2">
-                 <div className={`w-4 h-4 rounded-sm rotate-45 border ${gameState.runners[2] ? 'bg-yellow-400' : 'bg-zinc-900'}`} title="3rd Base" />
-                 <div className={`w-4 h-4 rounded-sm rotate-45 border ${gameState.runners[0] ? 'bg-yellow-400' : 'bg-zinc-900'}`} title="1st Base" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-zinc-800 p-6 rounded-lg border border-zinc-700">
-             <h2 className="text-zinc-400 text-sm mb-4 uppercase tracking-widest">At Bat</h2>
-             <div className="text-xl font-bold">{gameState.lineup.batters[gameState.currentBatterIndex]?.name}</div>
-             <div className="grid grid-cols-4 gap-2 mt-4 text-center">
-                <div className="bg-zinc-900 p-2 rounded">
-                    <div className="text-xs text-zinc-500">CON</div>
-                    <div>{gameState.lineup.batters[gameState.currentBatterIndex]?.stats.contact}</div>
-                </div>
-                <div className="bg-zinc-900 p-2 rounded">
-                    <div className="text-xs text-zinc-500">POW</div>
-                    <div>{gameState.lineup.batters[gameState.currentBatterIndex]?.stats.power}</div>
-                </div>
-                <div className="bg-zinc-900 p-2 rounded">
-                    <div className="text-xs text-zinc-500">PAT</div>
-                    <div>{gameState.lineup.batters[gameState.currentBatterIndex]?.stats.patience}</div>
-                </div>
-                <div className="bg-zinc-900 p-2 rounded">
-                    <div className="text-xs text-zinc-500">SPD</div>
-                    <div>{gameState.lineup.batters[gameState.currentBatterIndex]?.stats.speed}</div>
-                </div>
-             </div>
-          </div>
-
-          <button 
-            disabled={gameState.inning > 3}
-            onClick={playPlateAppearance}
-            className="w-full py-4 bg-red-600 hover:bg-red-500 disabled:bg-zinc-700 rounded-lg text-xl font-bold shadow-lg transform transition active:scale-95"
-          >
-            {gameState.inning > 3 ? 'GAME OVER' : 'PLAY BALL'}
-          </button>
-          
-          {gameState.inning > 3 && (
-             <button 
-                onClick={initializeGame}
-                className="w-full py-2 bg-zinc-700 hover:bg-zinc-600 rounded flex items-center justify-center gap-2"
-             >
-                <RotateCcw size={16} /> New Game
-             </button>
-          )}
+        
+        <div className="flex gap-3">
+          <button onClick={() => setView('GAME')} className={`p-3 rounded-xl transition ${view === 'GAME' ? 'bg-red-600 shadow-lg' : 'bg-slate-800 hover:bg-slate-700'}`}><LayoutPanelLeft size={20}/></button>
+          <button onClick={() => setView('SHOP')} className={`p-3 rounded-xl transition ${view === 'SHOP' ? 'bg-red-600 shadow-lg' : 'bg-slate-800 hover:bg-slate-700'}`}><ShoppingCart size={20}/></button>
         </div>
+      </div>
 
-        {/* Center/Right: View Specific Content */}
-        <div className="md:col-span-2 space-y-6">
-          {view === 'GAME' ? (
-            <div className="bg-zinc-800 p-6 rounded-lg border border-zinc-700 h-[600px] flex flex-col">
-              <h2 className="text-zinc-400 text-sm mb-4 uppercase tracking-widest">Play Log</h2>
-              <div className="flex-1 overflow-y-auto space-y-2 pr-2">
-                {log.map((entry, i) => (
-                  <div key={i} className={`p-3 rounded ${entry.includes('End') ? 'bg-zinc-900 text-yellow-500 font-bold' : 'bg-zinc-700/50'}`}>
-                    {entry}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="bg-zinc-800 p-6 rounded-lg border border-zinc-700 min-h-[600px]">
-              <h2 className="text-zinc-400 text-sm mb-4 uppercase tracking-widest">Team Management</h2>
-              <div className="grid grid-cols-1 gap-4">
-                {gameState.lineup.batters.map((p, i) => (
-                   <div key={i} className={`p-4 rounded border flex justify-between items-center ${i === gameState.currentBatterIndex ? 'border-red-500 bg-red-900/10' : 'border-zinc-700 bg-zinc-900'}`}>
-                      <div>
-                        <span className="text-zinc-500 mr-4 font-bold">{i + 1}</span>
-                        <span className="font-bold">{p.name}</span>
-                        <div className="text-xs text-zinc-400 flex gap-4 mt-1">
-                           <span>CON: {p.stats.contact}</span>
-                           <span>POW: {p.stats.power}</span>
-                           <span>SPD: {p.stats.speed}</span>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                         {p.abilities.map((a, ai) => (
-                            <div key={ai} className="px-2 py-1 bg-blue-900 text-[10px] rounded" title={a.description}>
-                               {a.name}
+      <div className="max-w-6xl mx-auto grid grid-cols-12 gap-8">
+        {/* Play Area */}
+        <div className="col-span-12 lg:col-span-8 space-y-8">
+            {/* Lineup Cards */}
+            <div className="flex justify-center items-end gap-2 h-64 overflow-hidden px-4">
+                {gameState.lineup.batters.map((p, i) => {
+                    const isUp = i === gameState.currentBatterIndex;
+                    return (
+                        <div 
+                            key={p.id}
+                            className={`
+                                relative flex-shrink-0 transition-all duration-500 ease-out
+                                ${isUp ? 'w-48 h-64 z-10 -translate-y-4' : 'w-24 h-32 opacity-40 hover:opacity-60'}
+                                bg-gradient-to-br from-slate-700 to-slate-900
+                                rounded-xl border-2 shadow-2xl flex flex-col items-center justify-between p-3
+                                ${isUp ? 'border-red-500 ring-4 ring-red-500/20' : 'border-white/10'}
+                            `}
+                        >
+                            <div className="text-[10px] font-black opacity-50 absolute top-2 left-3">#{i+1}</div>
+                            <div className={`w-full aspect-square bg-slate-800 rounded-lg mb-2 overflow-hidden flex items-center justify-center p-2`}>
+                                <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i + 1}.png`} className="w-full h-full object-contain pixelated" alt={p.name} />
                             </div>
-                         ))}
-                      </div>
-                   </div>
-                ))}
-              </div>
+                            <div className="text-center w-full">
+                                <div className={`font-bold truncate text-xs ${isUp ? 'text-lg' : ''}`}>{p.name}</div>
+                                {isUp && (
+                                    <div className="grid grid-cols-4 gap-1 mt-2">
+                                        {Object.entries(p.stats).map(([k, v]) => (
+                                            <div key={k} className="bg-black/30 rounded py-1 px-0.5">
+                                                <div className="text-[8px] text-slate-400 uppercase leading-none">{k.slice(0,3)}</div>
+                                                <div className="text-[10px] font-bold">{v}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )
+                })}
             </div>
-          )}
+
+            {/* Action Area */}
+            <div className="flex flex-col items-center gap-6 py-8">
+                <button 
+                    disabled={gameState.inning > 3}
+                    onClick={playPlateAppearance}
+                    className="group relative px-12 py-5 bg-red-600 hover:bg-red-500 disabled:bg-slate-800 rounded-full text-2xl font-black uppercase tracking-widest shadow-[0_0_30px_rgba(239,68,68,0.3)] transition transform active:scale-95 disabled:shadow-none"
+                >
+                    <span className="relative flex items-center gap-3">
+                        <Play fill="currentColor" size={24}/> Play Ball
+                    </span>
+                    <div className="absolute inset-0 rounded-full border-2 border-white/20 group-hover:scale-110 opacity-0 group-hover:opacity-100 transition duration-500" />
+                </button>
+                
+                {gameState.inning > 3 && (
+                    <button onClick={initializeGame} className="text-slate-400 hover:text-white flex items-center gap-2 font-bold uppercase text-xs tracking-widest">
+                        <RotateCcw size={14}/> Restart Season
+                    </button>
+                )}
+            </div>
         </div>
-      </main>
+
+        {/* Sidebar Log */}
+        <div className="col-span-12 lg:col-span-4 flex flex-col h-[600px] bg-black/20 rounded-3xl border border-white/5 overflow-hidden">
+            <div className="p-4 border-b border-white/5 bg-white/5">
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Play-by-Play</h3>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                {log.map((entry, i) => (
+                    <div 
+                        key={i} 
+                        className={`
+                            p-3 rounded-xl border leading-snug animate-in slide-in-from-right-4 duration-300
+                            ${entry.includes('End') ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500 font-bold' : 'bg-slate-800/50 border-white/5 text-slate-300'}
+                        `}
+                    >
+                        {entry}
+                    </div>
+                ))}
+                {log.length === 0 && <div className="text-center text-slate-600 mt-20 italic">No events recorded</div>}
+            </div>
+        </div>
+      </div>
     </div>
   );
 };

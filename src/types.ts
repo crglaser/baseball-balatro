@@ -18,6 +18,7 @@ export interface Player {
   name: string;
   stats: Stats;
   abilities: Ability[];
+  imageUrl?: string;
 }
 
 export interface Lineup {
