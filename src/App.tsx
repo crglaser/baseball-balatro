@@ -14,17 +14,18 @@ const App: React.FC = () => {
     const bigBats = ABILITIES.BIG_BATS;
     const crutch = ABILITIES.CRUTCH;
     
-    const initialPlayers: Player[] = [
-      { id: '1', name: 'Speedy Gonzalez', stats: { contact: 80, power: 20, patience: 50, speed: 90 }, abilities: [], imageUrl: 'https://www.mlbstatic.com/team-logos/league-on-dark/1.svg' },
-      { id: '2', name: 'Slugger Sam', stats: { contact: 40, power: 90, patience: 30, speed: 20 }, abilities: bigBats ? [bigBats] : [], imageUrl: 'https://www.mlbstatic.com/team-logos/league-on-dark/1.svg' },
-      { id: '3', name: 'Steady Eddie', stats: { contact: 70, power: 50, patience: 80, speed: 50 }, abilities: crutch ? [crutch] : [], imageUrl: 'https://www.mlbstatic.com/team-logos/league-on-dark/1.svg' },
-    ];
-
-    let lineupBatters: Player[] = [];
-    for (let i = 0; i < 9; i++) {
-      const p = initialPlayers[i % initialPlayers.length];
-      if (p) lineupBatters.push({ ...p, id: `p-${i}-${Math.random()}` });
-    }
+    const names = ['Speedy Gonzalez', 'Slugger Sam', 'Steady Eddie', 'Bo Jackson', 'Deion Sanders', 'Babe Ruth', 'Ted Williams', 'Willie Mays', 'Hank Aaron'];
+    const lineupBatters: Player[] = names.map((name, i) => ({
+      id: `p-${i}-${Math.random()}`,
+      name,
+      stats: {
+        contact: 40 + Math.floor(Math.random() * 40),
+        power: 40 + Math.floor(Math.random() * 40),
+        patience: 40 + Math.floor(Math.random() * 40),
+        speed: 40 + Math.floor(Math.random() * 40),
+      },
+      abilities: i === 1 && bigBats ? [bigBats] : (i === 2 && crutch ? [crutch] : []),
+    }));
 
     setGameState({
       lineup: { batters: lineupBatters },
