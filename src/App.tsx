@@ -208,7 +208,7 @@ const App: React.FC = () => {
         <div className="col-span-12 lg:col-span-9 flex flex-col gap-8">
             
             {/* Lineup Card Row */}
-            <div className="bg-[#0f172a]/20 rounded-3xl border border-white/5 p-8 flex justify-between items-center gap-3 shadow-inner relative">
+            <div className="bg-[#0f172a]/10 rounded-3xl border border-white/5 p-8 flex justify-between items-center gap-4 shadow-inner relative">
                 {gameState.lineup.batters.map((p, i) => {
                     const isUp = i === gameState.currentBatterIndex;
                     return (
@@ -216,24 +216,26 @@ const App: React.FC = () => {
                             key={p.id}
                             className={`
                                 relative flex-1 min-w-0 transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1)
-                                h-52 bg-gradient-to-br rounded-2xl border-2 flex flex-col items-center justify-between p-4
-                                ${isUp ? 'from-blue-600/20 to-blue-900/40 border-blue-500 ring-[12px] ring-blue-500/10 scale-110 -translate-y-2 z-10 shadow-[0_25px_60px_rgba(0,0,0,0.6)]' : 'from-zinc-800 to-zinc-950 border-zinc-800 opacity-30 grayscale-[0.3]'}
+                                h-52 bg-gradient-to-br rounded-2xl border-2 flex flex-col items-center justify-between p-4 overflow-hidden
+                                ${isUp ? 'from-blue-600/10 to-blue-900/20 border-blue-500 shadow-[0_0_30px_rgba(37,99,235,0.2)]' : 'from-zinc-900/50 to-zinc-950 border-zinc-800 opacity-30 grayscale-[0.5]'}
                             `}
                         >
-                            <div className={`text-[10px] font-black absolute top-2 left-3 ${isUp ? 'text-blue-400' : 'text-zinc-600'}`}>ORDER #{i+1}</div>
+                            {/* Internal Highlight instead of external ring */}
+                            {isUp && <div className="absolute inset-0 border-4 border-blue-400/20 pointer-events-none animate-pulse rounded-2xl" />}
+                            
+                            <div className={`text-[9px] font-black absolute top-2 left-3 z-20 ${isUp ? 'text-blue-400' : 'text-zinc-600'}`}>#{i+1}</div>
                             <div className={`w-full aspect-square bg-black/40 rounded-xl overflow-hidden flex items-center justify-center p-2 relative transition-transform duration-700 ${isUp ? 'scale-110' : ''}`}>
                                 <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i + 25}.png`} className={`w-full h-full object-contain pixelated`} alt={p.name} />
-                                {isUp && <div className="absolute inset-0 bg-blue-400/5 animate-pulse rounded-xl" />}
                             </div>
-                            <div className="text-center w-full min-w-0">
-                                <div className={`font-black truncate text-[11px] uppercase tracking-tighter ${isUp ? 'text-white' : 'text-zinc-500'}`}>{p.name}</div>
+                            <div className="text-center w-full min-w-0 z-20">
+                                <div className={`font-black truncate text-[10px] uppercase tracking-tighter ${isUp ? 'text-white' : 'text-zinc-500'}`}>{p.name}</div>
                                 {isUp && (
-                                    <div className="flex gap-2 mt-2 justify-center font-mono">
-                                        <div className="bg-blue-600/30 px-2 py-0.5 rounded border border-blue-500/20">
-                                            <span className="text-[10px] font-black text-blue-400">CON {p.stats.contact}</span>
+                                    <div className="flex gap-1.5 mt-2 justify-center font-mono">
+                                        <div className="bg-blue-600/30 px-1.5 py-0.5 rounded border border-blue-500/20">
+                                            <span className="text-[9px] font-black text-blue-400">{p.stats.contact}</span>
                                         </div>
-                                        <div className="bg-orange-600/30 px-2 py-0.5 rounded border border-orange-500/20">
-                                            <span className="text-[10px] font-black text-orange-400">POW {p.stats.power}</span>
+                                        <div className="bg-orange-600/30 px-1.5 py-0.5 rounded border border-orange-500/20">
+                                            <span className="text-[9px] font-black text-orange-400">{p.stats.power}</span>
                                         </div>
                                     </div>
                                 )}
@@ -264,37 +266,37 @@ const App: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="mt-20 flex gap-6 relative z-10">
+                <div className="mt-20 flex gap-10 relative z-10">
                     <button 
                         disabled={gameState.inning > GAME_LENGTH || !!overlay}
                         onClick={playPlateAppearance}
-                        className="group relative px-12 py-7 bg-[#00aff0] hover:bg-[#009ee0] disabled:bg-zinc-900 disabled:text-zinc-700 rounded-2xl text-2xl font-black uppercase tracking-[0.2em] shadow-[0_10px_60px_rgba(0,175,240,0.3)] transition-all transform active:scale-95 hover:scale-105 ring-1 ring-white/30"
+                        className="group relative px-16 py-8 bg-[#00aff0] hover:bg-[#009ee0] disabled:bg-zinc-900 disabled:text-zinc-700 rounded-2xl text-3xl font-black uppercase tracking-[0.2em] shadow-[0_10px_60px_rgba(0,175,240,0.3)] transition-all transform active:scale-95 hover:scale-105 ring-1 ring-white/30"
                     >
-                        <span className="relative flex items-center gap-4 italic">
-                            <Play fill="currentColor" size={24}/> NEXT PITCH
+                        <span className="relative flex items-center gap-6 italic">
+                            <Play fill="currentColor" size={32}/> NEXT PITCH
                         </span>
                     </button>
 
                     <button 
                         disabled={gameState.inning > GAME_LENGTH || !!overlay}
                         onClick={simulateInning}
-                        className="group px-8 py-7 bg-zinc-800/80 hover:bg-zinc-700 disabled:bg-zinc-950 disabled:text-zinc-800 rounded-2xl text-xs font-black uppercase tracking-widest transition-all transform active:scale-95 flex items-center gap-3 border border-white/10"
+                        className="group px-10 py-8 bg-zinc-800/80 hover:bg-zinc-700 disabled:bg-zinc-950 disabled:text-zinc-800 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all transform active:scale-95 flex items-center gap-4 border border-white/10 backdrop-blur-sm"
                     >
-                        <FastForward size={22}/> END INNING
+                        <FastForward size={24}/> END INNING
                     </button>
 
                     <button 
                         disabled={gameState.inning > GAME_LENGTH || !!overlay}
                         onClick={simulateFullGame}
-                        className="group px-8 py-7 bg-white hover:bg-slate-200 text-black rounded-2xl text-xs font-black uppercase tracking-widest transition-all transform active:scale-95 flex items-center gap-3 shadow-2xl"
+                        className="group px-10 py-8 bg-white hover:bg-slate-200 text-black rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all transform active:scale-95 flex items-center gap-4 shadow-2xl"
                     >
-                        <SkipForward size={22}/> SIM GAME
+                        <SkipForward size={24}/> SIM GAME
                     </button>
                 </div>
             </div>
         </div>
 
-        {/* Play-by-Play */}
+        {/* Play-by-Play Sidebar */}
         <div className="col-span-12 lg:col-span-3 flex flex-col bg-[#080808] rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl relative">
             <div className="p-6 border-b border-white/5 bg-[#1a1a1a]/80 backdrop-blur-xl flex items-center justify-between">
                 <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-[#00aff0] flex items-center gap-3">
@@ -327,8 +329,9 @@ const App: React.FC = () => {
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-2xl animate-in fade-in duration-700 p-8">
               <div className="text-center max-w-lg space-y-10 animate-in zoom-in-95 duration-700">
                   <div className="flex justify-center">
-                      <div className="p-10 bg-blue-500/10 rounded-full border-4 border-blue-500/30 shadow-[0_0_100px_rgba(37,99,235,0.2)]">
+                      <div className="p-10 bg-blue-500/10 rounded-full border-4 border-blue-500/30 shadow-[0_0_100px_rgba(37,99,235,0.2)] relative">
                           <Trophy size={120} className="text-blue-500" />
+                          <div className="absolute inset-0 animate-ping rounded-full border border-blue-500/20" />
                       </div>
                   </div>
                   <div className="space-y-4">
@@ -342,7 +345,8 @@ const App: React.FC = () => {
           </div>
       )}
       
-      <div className="w-full max-w-6xl flex justify-center gap-16 py-8 mt-auto">
+      {/* Navigation Footer */}
+      <div className="w-full max-w-6xl flex justify-center gap-16 py-8 mt-auto opacity-40 hover:opacity-100 transition-opacity duration-700">
           <button onClick={() => setView('GAME')} className={`flex items-center gap-4 px-10 py-3 rounded-full font-black text-xs uppercase tracking-[0.3em] transition-all ${view === 'GAME' ? 'bg-[#00aff0] text-white shadow-[0_0_30px_rgba(0,175,240,0.4)]' : 'hover:bg-zinc-900 text-zinc-600'}`}>
             <LayoutPanelLeft size={20}/> The Field
           </button>
