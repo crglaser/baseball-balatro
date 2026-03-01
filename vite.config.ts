@@ -4,14 +4,9 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/baseball-balatro/',
+  base: './',
   plugins: [
     react(),
     tailwindcss(),
   ],
-  build: {
-    outDir: 'dist',
-    assetsDir: 'assets',
-    sourcemap: true,
-  }
 })
